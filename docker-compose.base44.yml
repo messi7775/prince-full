@@ -1,0 +1,46 @@
+services:
+  db:
+    image: mariadb:11
+    restart: on-failure
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpass
+      MARIADB_DATABASE: prince_cards
+      MARIADB_USER: prince
+      MARIADB_PASSWORD: princepass
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.base44
+    restart: on-failure
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:80"
+    volumes:
+      - ./:/var/www/html
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: prince_cards
+      DB_USER: prince
+      DB_PASS: princepass
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost/", "-o", "/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 5s
+
+volumes:
+  dbdata:

@@ -11,11 +11,15 @@ declare(strict_types=1);
  * Replace DB_PASS with the real MySQL password before uploading.
  */
 
-const DB_HOST = 'sql302.infinityfree.com';
-const DB_NAME = 'if0_43097781_prince';
-const DB_USER = 'if0_43097781';
-const DB_PASS = '7CF3Sf3xDxbU5L';
-const DB_PORT = 3306;
+// Environment-driven: falls back to the external hosting credentials
+// when no local DB_* environment variables are provided (e.g. on the
+// production host). In the Base44 dev environment these are set by
+// docker-compose to point at the local MariaDB service.
+define('DB_HOST', getenv('DB_HOST') ?: 'sql302.infinityfree.com');
+define('DB_NAME', getenv('DB_NAME') ?: 'if0_43097781_prince');
+define('DB_USER', getenv('DB_USER') ?: 'if0_43097781');
+define('DB_PASS', getenv('DB_PASS') ?: '7CF3Sf3xDxbU5L');
+define('DB_PORT', (int)(getenv('DB_PORT') ?: 3306));
 
 $dsn = 'mysql:host=' . DB_HOST .
        ';port=' . DB_PORT .
