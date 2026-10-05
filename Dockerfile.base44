@@ -1,4 +1,4 @@
-# Base44 dev image for the PHP + Apache app.
+# Base44 dev image for the PHP + Apache MVC app.
 # Plain runtime base — source is bind-mounted at runtime, not baked in.
 FROM php:8.2-apache
 
@@ -10,3 +10,8 @@ RUN apt-get update \
 RUN docker-php-ext-install pdo_mysql \
  && a2enmod rewrite \
  && sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
+
+# Point the document root at public/ (Front Controller pattern).
+# The site root /var/www/html is the bind-mounted repo; public/ is the web root.
+RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
+ && sed -ri -e 's!/var/www/!/var/www/html/public/!g' /etc/apache2/apache2.conf

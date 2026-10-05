@@ -36,7 +36,7 @@ services:
       DB_USER: prince
       DB_PASS: princepass
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost/", "-o", "/dev/null"]
+      test: ["CMD", "curl", "-sf", "http://localhost/login", "-o", "/dev/null"]
       interval: 10s
       timeout: 5s
       retries: 6
