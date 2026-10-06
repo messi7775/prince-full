@@ -19,6 +19,11 @@ final class AuthController extends Controller
         $this->redirect('/login');
     }
 
+    public function legacyLogin(Request $request): void
+    {
+        $this->redirect('/login');
+    }
+
     public function login(Request $request): void
     {
         if (Session::isAuthenticated()) {

@@ -1,34 +1,30 @@
-# AGENTS.md — Prince Full (PHP + MySQL)
+# Base44 development notes
 
-Notes for working on this repo in the Base44 dev environment.
+## Runtime and edit loop
+- Run `docker compose -f docker-compose.base44.yml up -d --build`; the web entry point is port 3000.
+- The PHP runtime image only supplies extensions and Apache configuration. The checkout is bind-mounted at `/var/www/html`, and Apache's document root is `public/`.
+- PHP executes source on every request (no frontend build step). Refresh the preview after service/configuration changes; do not rebuild for ordinary PHP edits.
+- If Apache reports a bind-mount traversal/htaccess 403, check repository directory permissions for `www-data` before changing Apache configuration.
 
-## Stack
-- PHP 8.2 + Apache (mod_rewrite, .htaccess) + PDO MySQL
-- MariaDB 11 (local compose service)
-- Arabic RTL, vanilla HTML/CSS/JS, no build step, no Node.js
-- PHP re-executes per request — edits to PHP/HTML/CSS/JS are live immediately (no reload needed)
-
-## Running
-- `docker compose -f docker-compose.base44.yml up -d` (builds `Dockerfile.base44`)
-- Web on host port 3000 → Apache :80 inside. DB is the `db` service (MariaDB).
-- Source is bind-mounted at `/var/www/html`; the `Dockerfile.base44` image only adds the `pdo_mysql` extension, `mod_rewrite`, `curl`, and `AllowOverride All`.
+## Routing
+- `public/index.php` loads the autoloader, database configuration and session, then dispatches `config/routes.php`.
+- The current login URL is `/login`, not `/login.php`. A compatibility GET route redirects the old URL to `/login` so retained preview URLs still work.
+- Protected routes must redirect unauthenticated visitors to `/login`. Do not fabricate authenticated sessions when testing.
 
 ## Database
-- Schema auto-seeds on first DB start via `database/schema.sql` (mounted into MariaDB initdb.d). It creates the `prince_cards` DB, the `admins` table, and one seed admin (`ibrabra651@gmail.com`).
-- To re-seed, drop the `dbdata` volume: `docker compose -f docker-compose.base44.yml down -v` then `up -d`.
-- Local DB credentials are set in compose `environment:` (prince / princepass), NOT secrets — they are local infra only.
+- Compose uses a local `prince_cards` database. Hosting uses `if0_43097781_prince`.
+- Preserve `database/schema.sql` as the hosting schema. `.base44/init-db.sh` is sourced by MariaDB on first initialization and skips its `USE` directive while importing into `MARIADB_DATABASE`.
+- Existing database volumes are retained, and initialization scripts do not rerun for populated volumes. Never delete the application-data volume to repair the preview.
+- Local infrastructure credentials are in Compose; external credentials are not needed for this setup.
+- SQL references to the reserved table name `lines` must use backticks.
 
-## config/database.php
-- Made environment-driven: reads `DB_HOST/DB_NAME/DB_USER/DB_PASS/DB_PORT` env vars, falling back to the original external InfinityFree hosting credentials when unset (production). Uses `define()` (not `const`, which can't hold function calls in PHP).
-- No external credentials are needed for local dev — the DB runs in compose.
+## Rendering quirk
+- `Controller::view` must not name its parameter `$data`: `extract(..., EXTR_SKIP)` would retain that parameter instead of extracting the report's `data` rows, causing reports to iterate over the entire view context.
 
-## Permissions quirk
-- The sandbox repo root is mode 700; Apache's `www-data` worker can't traverse a bind-mounted 700 dir (403 "unable to read htaccess file"). `chmod -R a+rX .` on the host fixes it. Re-run if a fresh checkout resets perms.
-
-## Login
-- Admin email: `ibrabra651@gmail.com` (password is the owner's, set in `database/schema.sql` via bcrypt hash). The login page validates against the `admins` table with `password_verify()`.
-- `dashboard.php` is currently static (KPIs hard-coded to 0); no other DB tables are queried, so it renders without additional seeding.
-
-## Healthchecks
-- `db`: MariaDB `healthcheck.sh --connect --innodb_initialized`
-- `web`: `curl -sf http://localhost/` (index.php 302-redirects to login.php, both are non-error responses)
+## Verification
+- `curl -fsSL http://localhost:3000/login.php` must return the Arabic login page after redirecting to `/login`.
+- `docker compose -f docker-compose.base44.yml ps` must show healthy database and web services. Web health probes the existing `/login` endpoint.
+- PHP lint: `docker compose -f docker-compose.base44.yml exec -T web sh -c 'find app config public vendor -name "*.php" -exec php -l {} \;'`.
+- CLI model/render tests must define `APP_ROOT` as the checkout directory before requiring `vendor/Core/autoload.php`, then load `config/database.php`.
+- Report regression checks must include nonempty rows, especially the cash report. Search relies on the runtime's `mbstring` extension.
+- Successful administrator login requires the owner's actual password; keep the seed hash unchanged and do not reset it just for a test.

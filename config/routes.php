@@ -5,6 +5,7 @@ return [
     'GET' => [
         '/'                  => ['Controllers\\AuthController', 'root'],
         '/login'             => ['Controllers\\AuthController', 'login'],
+        '/login.php'         => ['Controllers\\AuthController', 'legacyLogin'],
         '/logout'            => ['Controllers\\AuthController', 'logout'],
         '/dashboard'         => ['Controllers\\DashboardController', 'index'],
         '/packages'          => ['Controllers\\PackageController', 'index'],

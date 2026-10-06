@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 abstract class Controller
 {
-    protected function view(string $view, array $data = [], ?string $layout = 'app'): void
+    protected function view(string $view, array $viewData = [], ?string $layout = 'app'): void
     {
-        extract($data, EXTR_SKIP);
+        extract($viewData, EXTR_SKIP);
 
         $viewFile = __DIR__ . '/../Views/' . $view . '.php';
         if (!is_file($viewFile)) {
