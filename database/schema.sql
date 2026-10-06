@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS admins (
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO admins (email, password_hash)
-VALUES ('ibrabra651@gmail.com', '$2y$10$VwCLBszvFQucpUSEWJ.Xw.w7kpAecHgyjmG6QGaFJqXlK0fTIrz0W')
+VALUES ('ibrabra651@gmail.com', '$2y$10$tCas7Ja6eGY/mZ7jKTcXbelN9yzRSQv0zX7KGrTbteHOctsPQEE82')
 ON DUPLICATE KEY UPDATE
     password_hash = VALUES(password_hash),
     updated_at = CURRENT_TIMESTAMP;
