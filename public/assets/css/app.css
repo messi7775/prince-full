@@ -56,12 +56,16 @@ body{line-height:1.5}a{text-decoration:none;color:inherit}button{font:inherit}
 .data-table tr:hover td{background:#f9fbfd}
 .actions-cell{white-space:nowrap}
 .inline-form{display:inline}
+.action-buttons{display:inline-flex;gap:6px;align-items:center}
+.inline-inv-form{display:inline-flex;gap:12px;align-items:center;flex-wrap:wrap;padding:6px 0}
+.inline-inv-form label{font-size:13px;font-weight:600;color:#5a6577;display:inline-flex;align-items:center;gap:6px}
+.inline-inv-form input{padding:7px 12px;border:1px solid #d3d8e2;border-radius:10px;font-size:14px;font-family:inherit;max-width:180px}
+.inv-form-row td{background:#f8fafe}
 
 /* Badges */
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700}
 .badge.ok{background:#dff5ed;color:#169875}
 .badge.zero{background:#ffe8ed;color:#dc4c69}
-.badge.warn{background:#fff4e0;color:#c98517}
 
 /* Buttons */
 .btn{border:0;border-radius:12px;padding:10px 22px;font-size:15px;font-weight:600;cursor:pointer;display:inline-block}
@@ -97,6 +101,16 @@ body{line-height:1.5}a{text-decoration:none;color:inherit}button{font:inherit}
 .alert{padding:10px 16px;border-radius:12px;font-size:14px;margin-bottom:12px}
 .alert.error{background:#fff1f4;color:#c92048}
 .alert.success{background:#effaf7;color:#128a6a}
+
+/* Low-stock alerts */
+.alert-panel{border-color:#ffd0d8;background:#fff8fa}
+.low-stock-alerts{display:grid;gap:8px}
+.low-stock-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:#fff0f3;border:1px solid #ffd0d8;border-radius:10px}
+.low-stock-name{font-weight:700;font-size:15px;color:#172033}
+.low-stock-count{font-size:14px;font-weight:700;padding:3px 10px;border-radius:8px}
+.low-stock-count.low{background:#fff3d6;color:#c98517}
+.low-stock-count.out{background:#ffe0e8;color:#e6466a}
+.low-stock-threshold{font-size:13px;color:#8a94a2}
 
 /* Login */
 .login-page{display:grid;place-items:center;min-height:100vh;background:linear-gradient(135deg,#0d1528,#16223b)}
