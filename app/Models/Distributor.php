@@ -12,8 +12,6 @@ final class Distributor extends Model
         return $this->fetchAll(
             'SELECT d.*,
                     COALESCE((SELECT SUM(s.total) FROM sales s WHERE s.distributor_id = d.id AND s.payment_type = \'credit\'), 0) AS credit_total,
-                    COALESCE((SELECT SUM(s.total) FROM sales s WHERE s.distributor_id = d.id AND s.payment_type = \'installment\'), 0) AS installment_total,
-                    COALESCE((SELECT SUM(s.paid_amount) FROM sales s WHERE s.distributor_id = d.id AND s.payment_type = \'installment\'), 0) AS installment_paid,
                     COALESCE((SELECT SUM(p.amount) FROM payments p WHERE p.distributor_id = d.id), 0) AS paid_total
                FROM distributors d
               ORDER BY d.name'
@@ -45,14 +43,12 @@ final class Distributor extends Model
         return $this->fetchInt('SELECT COUNT(*) FROM distributors');
     }
 
-    /** Total outstanding debt across all distributors (credit + installment remaining - payments). */
+    /** Total outstanding debt across all distributors. */
     public function totalDebt(): int
     {
         return $this->fetchInt(
             "SELECT COALESCE(SUM(
                 (SELECT COALESCE(SUM(s.total), 0) FROM sales s WHERE s.distributor_id = d.id AND s.payment_type = 'credit')
-                +
-                (SELECT COALESCE(SUM(s.total - s.paid_amount), 0) FROM sales s WHERE s.distributor_id = d.id AND s.payment_type = 'installment')
                 -
                 (SELECT COALESCE(SUM(p.amount), 0) FROM payments p WHERE p.distributor_id = d.id)
             ), 0)
@@ -67,14 +63,10 @@ final class Distributor extends Model
             "SELECT COALESCE(SUM(total), 0) FROM sales WHERE distributor_id = ? AND payment_type = 'credit'",
             [$id]
         );
-        $installmentRemaining = $this->fetchInt(
-            "SELECT COALESCE(SUM(total - paid_amount), 0) FROM sales WHERE distributor_id = ? AND payment_type = 'installment'",
-            [$id]
-        );
         $paid = $this->fetchInt(
             'SELECT COALESCE(SUM(amount), 0) FROM payments WHERE distributor_id = ?',
             [$id]
         );
-        return $credit + $installmentRemaining - $paid;
+        return $credit - $paid;
     }
 }
