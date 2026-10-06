@@ -30,24 +30,16 @@ final class PackageController extends Controller
         $this->verifyCsrf();
 
         $name        = (string)$request->input('name', '');
-        $price       = (int)$request->input('price', 0);
-        $bundleSize  = (int)$request->input('bundle_size', 1);
         $bundlePrice = (int)$request->input('bundle_price', 0);
-        $hours       = $request->input('hours');
-        $duration    = (string)$request->input('duration', '');
         $status      = (string)$request->input('status', 'active');
 
-        if ($name === '' || $price <= 0 || $bundleSize < 1 || $bundlePrice < 0) {
+        if ($name === '' || $bundlePrice < 0) {
             $this->redirect('/packages');
         }
 
         $data = [
             'name'         => $name,
-            'price'        => $price,
-            'bundle_size'  => $bundleSize,
             'bundle_price' => $bundlePrice,
-            'hours'        => $hours !== null && $hours !== '' ? (int)$hours : null,
-            'duration'     => $duration ?: null,
             'status'       => $status,
         ];
 
@@ -64,11 +56,7 @@ final class PackageController extends Controller
 
         $id          = (int)$request->input('id', 0);
         $name        = (string)$request->input('name', '');
-        $price       = (int)$request->input('price', 0);
-        $bundleSize  = (int)$request->input('bundle_size', 1);
         $bundlePrice = (int)$request->input('bundle_price', 0);
-        $hours       = $request->input('hours');
-        $duration    = (string)$request->input('duration', '');
         $status      = (string)$request->input('status', 'active');
 
         if ($id <= 0 || $name === '') {
@@ -77,11 +65,7 @@ final class PackageController extends Controller
 
         $data = [
             'name'         => $name,
-            'price'        => $price,
-            'bundle_size'  => $bundleSize,
             'bundle_price' => $bundlePrice,
-            'hours'        => $hours !== null && $hours !== '' ? (int)$hours : null,
-            'duration'     => $duration ?: null,
             'status'       => $status,
         ];
 

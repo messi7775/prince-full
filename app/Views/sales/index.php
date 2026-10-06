@@ -16,7 +16,7 @@
                         <select name="package_id" id="sale-package" required>
                             <option value="">— اختر —</option>
                             <?php foreach ($packages as $p): ?>
-                                <option value="<?= (int)$p['id'] ?>" data-bundle-price="<?= (int)$p['bundle_price'] ?>" data-bundle-size="<?= (int)$p['bundle_size'] ?>"><?= e($p['name']) ?> — شدة <?= money($p['bundle_price']) ?></option>
+                                <option value="<?= (int)$p['id'] ?>" data-bundle-price="<?= (int)$p['bundle_price'] ?>"><?= e($p['name']) ?> — شدة <?= money($p['bundle_price']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </label>

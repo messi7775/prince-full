@@ -45,7 +45,7 @@
         <?php else: ?>
             <?php foreach ($inventory as $row): ?>
                 <div class="inventory-row">
-                    <span><?= e($row['name']) ?> — <?= money($row['price']) ?></span>
+                    <span><?= e($row['name']) ?> — شدة <?= money($row['bundle_price']) ?></span>
                     <span class="stock-count <?= ((int)$row['bundles']) > 0 ? 'ok' : 'zero' ?>"><?= int_num($row['bundles']) ?> شدة</span>
                     <em><?= money($row['value']) ?></em>
                 </div>

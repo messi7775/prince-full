@@ -19,19 +19,12 @@ ON DUPLICATE KEY UPDATE
 
 -- ---------------------------------------------------------------------------
 -- Packages (card denominations — sold by BUNDLE / شدة)
---   price           = card face value (ريال)
---   bundle_size     = cards per bundle (شدة), e.g. 50
 --   bundle_price    = price of one bundle (شدة), e.g. 5000
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS packages (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(190) NOT NULL,
-    price INT NOT NULL DEFAULT 0,
-    bundle_size INT NOT NULL DEFAULT 1,
     bundle_price INT NOT NULL DEFAULT 0,
-    hours INT UNSIGNED NULL,
-    color VARCHAR(32) NULL,
-    duration VARCHAR(64) NULL,
     status ENUM('active','inactive') NOT NULL DEFAULT 'active',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

@@ -36,13 +36,12 @@
         <?php else: ?>
             <table class="data-table">
                 <thead>
-                    <tr><th>الباقة</th><th>سعر الكرت</th><th>عدد الشدات</th><th>سعر الشدة</th><th>القيمة</th><th>الحالة</th><th>إجراءات</th></tr>
+                    <tr><th>الباقة</th><th>عدد الشدات</th><th>سعر الشدة</th><th>القيمة</th><th>الحالة</th><th>إجراءات</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($items as $row): ?>
                     <tr>
                         <td><?= e($row['package_name']) ?></td>
-                        <td><?= money($row['card_price']) ?></td>
                         <td><?= int_num($row['quantity']) ?></td>
                         <td><?= money($row['bundle_price']) ?></td>
                         <td><?= money($row['quantity'] * $row['bundle_price']) ?></td>

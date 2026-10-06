@@ -66,10 +66,10 @@
             </table>
         <?php elseif ($type === 'inventory'): ?>
             <table class="data-table">
-                <thead><tr><th>الباقة</th><th>سعر الكرت</th><th>الشدات</th><th>سعر الشدة</th><th>القيمة</th></tr></thead>
+                <thead><tr><th>الباقة</th><th>الشدات</th><th>سعر الشدة</th><th>القيمة</th></tr></thead>
                 <tbody>
                     <?php foreach ($data as $r): ?>
-                    <tr><td><?= e($r['name']) ?></td><td><?= money($r['price']) ?></td><td><?= int_num($r['bundles']) ?></td><td><?= money($r['bundle_price']) ?></td><td><?= money($r['value']) ?></td></tr>
+                    <tr><td><?= e($r['name']) ?></td><td><?= int_num($r['bundles']) ?></td><td><?= money($r['bundle_price']) ?></td><td><?= money($r['value']) ?></td></tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>

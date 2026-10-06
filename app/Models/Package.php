@@ -9,12 +9,12 @@ final class Package extends Model
 {
     public function all(): array
     {
-        return $this->fetchAll('SELECT * FROM packages ORDER BY price DESC');
+        return $this->fetchAll('SELECT * FROM packages ORDER BY bundle_price DESC');
     }
 
     public function active(): array
     {
-        return $this->fetchAll("SELECT * FROM packages WHERE status = 'active' ORDER BY price DESC");
+        return $this->fetchAll("SELECT * FROM packages WHERE status = 'active' ORDER BY bundle_price DESC");
     }
 
     public function count(): int

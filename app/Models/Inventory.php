@@ -10,7 +10,7 @@ final class Inventory extends Model
     public function all(): array
     {
         return $this->fetchAll(
-            'SELECT i.*, p.name AS package_name, p.price AS card_price, p.bundle_size
+            'SELECT i.*, p.name AS package_name
                FROM inventory i
                JOIN packages p ON p.id = i.package_id
               ORDER BY i.created_at DESC'
@@ -61,13 +61,13 @@ final class Inventory extends Model
     public function stockByPackage(): array
     {
         return $this->fetchAll(
-            "SELECT p.id, p.name, p.price, p.bundle_size, p.bundle_price,
+            "SELECT p.id, p.name, p.bundle_price,
                     COALESCE(SUM(i.quantity), 0) AS bundles,
                     COALESCE(SUM(i.quantity * i.bundle_price), 0) AS value
                FROM packages p
           LEFT JOIN inventory i ON i.package_id = p.id AND i.status = 'active'
-           GROUP BY p.id, p.name, p.price, p.bundle_size, p.bundle_price
-           ORDER BY p.price DESC"
+           GROUP BY p.id, p.name, p.bundle_price
+           ORDER BY p.bundle_price DESC"
         );
     }
 }
