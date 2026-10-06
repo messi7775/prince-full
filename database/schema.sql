@@ -1,8 +1,4 @@
-CREATE DATABASE IF NOT EXISTS prince_cards
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
-USE prince_cards;
+USE if0_43097781_prince;
 
 -- ---------------------------------------------------------------------------
 -- Admin (single authenticated account)
