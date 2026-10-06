@@ -1,15 +1,15 @@
 USE if0_43097781_prince;
 
--- ---------------------------------------------------------------------------
+-- --------------------------------------
 -- Admin (single authenticated account)
--- ---------------------------------------------------------------------------
+-- ------------------------------------------------
 CREATE TABLE IF NOT EXISTS admins (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(190) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO admins (email, password_hash)
 VALUES ('ibrabra651@gmail.com', '$2y$10$VwCLBszvFQucpUSEWJ.Xw.w7kpAecHgyjmG6QGaFJqXlK0fTIrz0W')
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS packages (
     status ENUM('active','inactive') NOT NULL DEFAULT 'active',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Inventory (stock batches — bundle_price captured for historical accuracy)
@@ -49,8 +49,9 @@ CREATE TABLE IF NOT EXISTS inventory (
     status ENUM('active','closed') NOT NULL DEFAULT 'active',
     note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_inventory_package FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE
-);
+    CONSTRAINT fk_inventory_package
+        FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Distributors (resellers)
@@ -63,7 +64,7 @@ CREATE TABLE IF NOT EXISTS distributors (
     note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Sales — sold by BUNDLE (شدة)
@@ -81,9 +82,11 @@ CREATE TABLE IF NOT EXISTS sales (
     payment_type ENUM('cash','credit') NOT NULL DEFAULT 'cash',
     note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_sale_distributor FOREIGN KEY (distributor_id) REFERENCES distributors(id) ON DELETE SET NULL,
-    CONSTRAINT fk_sale_package FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE SET NULL
-);
+    CONSTRAINT fk_sale_distributor
+        FOREIGN KEY (distributor_id) REFERENCES distributors(id) ON DELETE SET NULL,
+    CONSTRAINT fk_sale_package
+        FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Payments (collections from distributors — full or partial)
@@ -94,8 +97,9 @@ CREATE TABLE IF NOT EXISTS payments (
     amount INT NOT NULL DEFAULT 0,
     note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_payment_distributor FOREIGN KEY (distributor_id) REFERENCES distributors(id) ON DELETE CASCADE
-);
+    CONSTRAINT fk_payment_distributor
+        FOREIGN KEY (distributor_id) REFERENCES distributors(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Lines (telecom line accounts)
@@ -107,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `lines` (
     provider VARCHAR(190) NULL,
     note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Line payments (recharge / payment for each line)
@@ -119,8 +123,9 @@ CREATE TABLE IF NOT EXISTS line_payments (
     direction ENUM('in','out') NOT NULL DEFAULT 'out',
     note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_linepay_line FOREIGN KEY (line_id) REFERENCES `lines`(id) ON DELETE CASCADE
-);
+    CONSTRAINT fk_linepay_line
+        FOREIGN KEY (line_id) REFERENCES `lines`(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Owner withdrawals (سحوبات المالك)
@@ -130,7 +135,7 @@ CREATE TABLE IF NOT EXISTS owner_withdrawals (
     amount INT NOT NULL DEFAULT 0,
     note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Expenses (operating costs)
@@ -141,7 +146,7 @@ CREATE TABLE IF NOT EXISTS expenses (
     amount INT NOT NULL DEFAULT 0,
     note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Cash movements (every cash in/out event — for audit and dashboard)
@@ -154,7 +159,7 @@ CREATE TABLE IF NOT EXISTS cash_movements (
     reference_type VARCHAR(64) NULL,
     reference_id INT UNSIGNED NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
 -- Audit log
@@ -166,5 +171,6 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     description VARCHAR(255) NULL,
     context TEXT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_audit_admin FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE SET NULL
-);
+    CONSTRAINT fk_audit_admin
+        FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
