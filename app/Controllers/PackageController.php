@@ -6,6 +6,7 @@ namespace Controllers;
 use Controller;
 use Request;
 use Models\Package;
+use Models\Inventory;
 use Models\AuditLog;
 use Session;
 
@@ -55,7 +56,9 @@ final class PackageController extends Controller
             'low_stock_threshold' => $threshold,
         ];
 
-        (new Package())->create($data);
+        $packageId = (new Package())->create($data);
+        // Auto-create an inventory row for the new package (qty=0, price=0)
+        (new Inventory())->findOrCreateByPackage($packageId, 0);
         $this->logAudit('package_create', 'إضافة باقة: ' . $name, $data);
 
         $this->redirect('/packages');

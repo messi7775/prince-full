@@ -56,6 +56,11 @@ body{line-height:1.5}a{text-decoration:none;color:inherit}button{font:inherit}
 .data-table tr:hover td{background:#f9fbfd}
 .actions-cell{white-space:nowrap}
 .inline-form{display:inline}
+.action-buttons{display:inline-flex;gap:6px}
+.inline-inv-form{display:inline-flex;gap:12px;align-items:center;flex-wrap:wrap;padding:6px 0}
+.inline-inv-form label{font-size:13px;font-weight:600;color:#5a6577;display:inline-flex;align-items:center;gap:6px}
+.inline-inv-form input{padding:7px 12px;border:1px solid #d3d8e2;border-radius:10px;font-size:14px;font-family:inherit;max-width:180px}
+.inv-form-row td{background:#f8fafe}
 
 /* Badges */
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700}

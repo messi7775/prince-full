@@ -44,7 +44,26 @@ CREATE TABLE IF NOT EXISTS inventory (
     status ENUM('active','closed') NOT NULL DEFAULT 'active',
     note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_inventory_package (package_id),
     CONSTRAINT fk_inventory_package
+        FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Inventory movements (log of add/edit/delete operations on stock)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS inventory_movements (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    package_id INT UNSIGNED NOT NULL,
+    action ENUM('add','edit','delete') NOT NULL,
+    old_quantity INT NOT NULL DEFAULT 0,
+    new_quantity INT NOT NULL DEFAULT 0,
+    bundle_price INT NOT NULL DEFAULT 0,
+    old_value INT NOT NULL DEFAULT 0,
+    new_value INT NOT NULL DEFAULT 0,
+    note VARCHAR(255) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_invmov_package
         FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
