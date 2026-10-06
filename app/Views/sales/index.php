@@ -20,9 +20,9 @@
                             <?php endforeach; ?>
                         </select>
                     </label>
-                    <label>الموزع (اختياري — للآجل)
-                        <select name="distributor_id">
-                            <option value="0">— نقدي —</option>
+                    <label>الموزع
+                        <select name="distributor_id" id="sale-distributor" required>
+                            <option value="">— اختر موزع —</option>
                             <?php foreach ($distributors as $d): ?>
                                 <option value="<?= (int)$d['id'] ?>"><?= e($d['name']) ?> — رصيد: <?= money((int)$d['credit_total'] - (int)$d['paid_total']) ?></option>
                             <?php endforeach; ?>
@@ -34,11 +34,14 @@
                         <select name="payment_type" id="sale-type">
                             <option value="cash">نقدي</option>
                             <option value="credit">آجل</option>
+                            <option value="installment">تقسيط</option>
                         </select>
                     </label>
+                    <label id="paid-amount-field" style="display:none">المبلغ المدفوع<input name="paid_amount" id="sale-paid" type="number" min="0" value="0"></label>
                     <label>ملاحظة<input name="note" placeholder="اختياري"></label>
                 </div>
                 <div class="sale-total">الإجمالي: <strong id="sale-total-display">0</strong> ريال</div>
+                <div id="sale-remaining-display" style="display:none" class="sale-total">الباقي عليه: <strong>0</strong> ريال</div>
                 <button class="btn primary" type="submit">تسجيل البيع</button>
             </form>
         </details>
@@ -51,18 +54,36 @@
         <?php else: ?>
             <table class="data-table">
                 <thead>
-                    <tr><th>التاريخ</th><th>الموزع</th><th>الباقة</th><th>عدد الشدات</th><th>سعر الشدة</th><th>الإجمالي</th><th>النوع</th><th>إجراءات</th></tr>
+                    <tr><th>التاريخ</th><th>الموزع</th><th>الباقة</th><th>عدد الشدات</th><th>سعر الشدة</th><th>الإجمالي</th><th>المتبقي</th><th>نوع الدفع</th><th>إجراءات</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($sales as $s): ?>
+                        <?php
+                            $remaining = match($s['payment_type']) {
+                                'cash'       => 0,
+                                'credit'     => (int)$s['total'],
+                                'installment'=> (int)$s['total'] - (int)$s['paid_amount'],
+                            };
+                            $typeLabel = match($s['payment_type']) {
+                                'cash'       => 'نقدي',
+                                'credit'     => 'آجل',
+                                'installment'=> 'تقسيط',
+                            };
+                            $typeBadge = match($s['payment_type']) {
+                                'cash'       => 'ok',
+                                'installment'=> 'warn',
+                                default      => 'zero',
+                            };
+                        ?>
                     <tr>
                         <td><?= ar_date($s['created_at']) ?></td>
-                        <td><?= e($s['distributor_name'] ?? 'نقدي') ?></td>
+                        <td><?= e($s['distributor_name'] ?? '') ?></td>
                         <td><?= e($s['package_name'] ?? '') ?></td>
                         <td><?= int_num($s['bundles_count']) ?></td>
                         <td><?= money($s['bundle_price']) ?></td>
                         <td><?= money($s['total']) ?></td>
-                        <td><span class="badge <?= $s['payment_type'] === 'cash' ? 'ok' : 'zero' ?>"><?= $s['payment_type'] === 'cash' ? 'نقدي' : 'آجل' ?></span></td>
+                        <td><?= money($remaining) ?></td>
+                        <td><span class="badge <?= $typeBadge ?>"><?= $typeLabel ?></span></td>
                         <td class="actions-cell">
                             <form method="post" action="/sales/delete" class="inline-form" onsubmit="return confirm('حذف هذه العملية؟')">
                                 <?= csrf_field() ?>
@@ -80,15 +101,34 @@
 
 <script>
 (function() {
-    var pkg = document.getElementById('sale-package');
+    var pkg     = document.getElementById('sale-package');
     var bundles = document.getElementById('sale-bundles');
-    var price = document.getElementById('sale-price');
-    var display = document.getElementById('sale-total-display');
+    var price   = document.getElementById('sale-price');
+    var type    = document.getElementById('sale-type');
+    var paid    = document.getElementById('sale-paid');
+    var paidField  = document.getElementById('paid-amount-field');
+    var display    = document.getElementById('sale-total-display');
+    var remainingD = document.getElementById('sale-remaining-display');
 
     function calc() {
         var b = parseInt(bundles.value) || 0;
         var p = parseInt(price.value) || 0;
-        display.textContent = (b * p).toLocaleString();
+        var total = b * p;
+        display.textContent = total.toLocaleString();
+
+        var t = type.value;
+        if (t === 'installment') {
+            paidField.style.display = '';
+            paid.max = total;
+            var paidVal = parseInt(paid.value) || 0;
+            if (paidVal > total) { paidVal = total; paid.value = total; }
+            remainingD.style.display = '';
+            remainingD.querySelector('strong').textContent = (total - paidVal).toLocaleString();
+        } else {
+            paidField.style.display = 'none';
+            remainingD.style.display = 'none';
+            paid.value = 0;
+        }
     }
 
     pkg.addEventListener('change', function() {
@@ -99,5 +139,8 @@
     });
     bundles.addEventListener('input', calc);
     price.addEventListener('input', calc);
+    type.addEventListener('change', calc);
+    paid.addEventListener('input', calc);
+    calc();
 })();
 </script>

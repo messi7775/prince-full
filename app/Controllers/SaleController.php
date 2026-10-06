@@ -38,18 +38,34 @@ final class SaleController extends Controller
         $this->requireAuth();
         $this->verifyCsrf();
 
-        $packageId    = (int)$request->input('package_id', 0);
+        $packageId     = (int)$request->input('package_id', 0);
         $distributorId = (int)$request->input('distributor_id', 0);
-        $bundlesCount = (int)$request->input('bundles_count', 0);
-        $bundlePrice  = (int)$request->input('bundle_price', 0);
-        $paymentType  = (string)$request->input('payment_type', 'cash');
-        $note         = (string)$request->input('note', '');
+        $bundlesCount  = (int)$request->input('bundles_count', 0);
+        $bundlePrice   = (int)$request->input('bundle_price', 0);
+        $paymentType   = (string)$request->input('payment_type', 'cash');
+        $paidAmount    = (int)$request->input('paid_amount', 0);
+        $note          = (string)$request->input('note', '');
+
+        // Distributor is mandatory
+        if ($distributorId <= 0) {
+            $this->redirect('/sales');
+        }
 
         if ($packageId <= 0 || $bundlesCount <= 0) {
             $this->redirect('/sales');
         }
 
         $total = $bundlesCount * $bundlePrice;
+
+        // Normalize paid_amount based on payment type
+        if ($paymentType === 'cash') {
+            $paidAmount = $total;
+        } elseif ($paymentType === 'credit') {
+            $paidAmount = 0;
+        } else {
+            // installment — clamp paid_amount to [0, total]
+            $paidAmount = max(0, min($paidAmount, $total));
+        }
 
         // Deduct from inventory
         $inventory = new Inventory();
@@ -64,23 +80,26 @@ final class SaleController extends Controller
         }
 
         $data = [
-            'distributor_id' => $distributorId > 0 ? $distributorId : null,
+            'distributor_id' => $distributorId,
             'package_id'     => $packageId,
             'bundles_count'  => $bundlesCount,
             'bundle_price'   => $bundlePrice,
             'total'          => $total,
+            'paid_amount'    => $paidAmount,
             'payment_type'   => $paymentType,
             'note'           => $note ?: null,
         ];
 
         $saleId = (new Sale())->create($data);
 
-        // Record cash movement for cash sales
-        if ($paymentType === 'cash' && $total > 0) {
+        // Record cash movement for the paid portion
+        if ($paidAmount > 0) {
             (new CashMovement())->create([
                 'direction'      => CashMovement::IN,
-                'amount'         => $total,
-                'reason'         => 'بيع كروت (نقدي)',
+                'amount'         => $paidAmount,
+                'reason'         => $paymentType === 'cash'
+                    ? 'بيع كروت (نقدي)'
+                    : 'بيع كروت (تقسيط - دفعة أولى)',
                 'reference_type' => 'sale',
                 'reference_id'   => $saleId,
             ]);
@@ -99,11 +118,7 @@ final class SaleController extends Controller
         $id = (int)$request->input('id', 0);
         if ($id > 0) {
             (new Sale())->delete($id);
-            // Remove associated cash movement
-            (new CashMovement())->execute(
-                "DELETE FROM cash_movements WHERE reference_type = 'sale' AND reference_id = ?",
-                [$id]
-            );
+            (new CashMovement())->deleteByReference('sale', $id);
             $this->logAudit('sale_delete', 'حذف عملية بيع #' . $id);
         }
 

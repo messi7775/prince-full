@@ -43,4 +43,13 @@ final class CashMovement extends Model
     {
         return $this->deleteRow('cash_movements', $id);
     }
+
+    /** Delete all cash movements linked to a given reference (e.g. a sale). */
+    public function deleteByReference(string $referenceType, int $referenceId): int
+    {
+        return $this->execute(
+            "DELETE FROM cash_movements WHERE reference_type = ? AND reference_id = ?",
+            [$referenceType, $referenceId]
+        );
+    }
 }

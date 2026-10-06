@@ -61,6 +61,7 @@ body{line-height:1.5}a{text-decoration:none;color:inherit}button{font:inherit}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700}
 .badge.ok{background:#dff5ed;color:#169875}
 .badge.zero{background:#ffe8ed;color:#dc4c69}
+.badge.warn{background:#fff4e0;color:#c98517}
 
 /* Buttons */
 .btn{border:0;border-radius:12px;padding:10px 22px;font-size:15px;font-weight:600;cursor:pointer;display:inline-block}

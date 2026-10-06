@@ -93,7 +93,8 @@ CREATE TABLE IF NOT EXISTS sales (
     bundles_count INT NOT NULL DEFAULT 1,
     bundle_price INT NOT NULL DEFAULT 0,
     total INT NOT NULL DEFAULT 0,
-    payment_type ENUM('cash','credit') NOT NULL DEFAULT 'cash',
+    paid_amount INT NOT NULL DEFAULT 0,
+    payment_type ENUM('cash','credit','installment') NOT NULL DEFAULT 'cash',
     note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_sale_distributor
