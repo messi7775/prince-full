@@ -15,7 +15,7 @@
         <a class="nav-item <?= ($active ?? '') === 'sales' ? 'active' : '' ?>" href="/sales"><span>🛒</span><b>المبيعات</b></a>
         <a class="nav-item <?= ($active ?? '') === 'payments' ? 'active' : '' ?>" href="/payments"><span>♣</span><b>التحصيلات</b></a>
         <a class="nav-item <?= ($active ?? '') === 'lines' ? 'active' : '' ?>" href="/lines"><span>⌁</span><b>الخطوط</b></a>
-        <a class="nav-item <?= ($active ?? '') === 'line-payments' ? 'active' : '' ?>" href="/line-payments"><span>▭</span><b>دفعات الخطوط</b></a>
+        <a class="nav-item <?= ($active ?? '') === 'line-payments' ? 'active' : '' ?>" href="/line-payments"><span>▭</span><b>تسديد الخطوط</b></a>
         <a class="nav-item <?= ($active ?? '') === 'expenses' ? 'active' : '' ?>" href="/expenses"><span>▣</span><b>المصروفات</b></a>
         <a class="nav-item <?= ($active ?? '') === 'owner-withdrawals' ? 'active' : '' ?>" href="/owner-withdrawals"><span>▱</span><b>سحوبات المالك</b></a>
         <a class="nav-item <?= ($active ?? '') === 'cash' ? 'active' : '' ?>" href="/cash"><span>▥</span><b>الصندوق</b></a>

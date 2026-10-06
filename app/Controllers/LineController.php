@@ -72,7 +72,7 @@ final class LineController extends Controller
         $payments = $line->allPayments();
 
         $this->view('lines/payments', [
-            'pageTitle' => 'دفعات الخطوط',
+            'pageTitle' => 'تسديد الخطوط',
             'active'    => 'line-payments',
             'lines'     => $lines,
             'payments'  => $payments,
@@ -106,12 +106,12 @@ final class LineController extends Controller
         (new CashMovement())->create([
             'direction'      => $direction,
             'amount'         => $amount,
-            'reason'         => 'دفع خط',
+            'reason'         => $direction === 'in' ? 'استلام من خط' : 'دفع خط',
             'reference_type' => 'line_payment',
             'reference_id'   => $payId,
         ]);
 
-        $this->logAudit('line_payment', 'دفع خط: ' . $amount, $data);
+        $this->logAudit('line_payment', 'تسديد خط: ' . $amount, $data);
 
         $this->redirect('/line-payments');
     }

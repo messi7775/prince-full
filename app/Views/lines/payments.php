@@ -1,14 +1,14 @@
 <div class="dashboard">
     <section class="dashboard-title">
         <div>
-            <h2>دفعات الخطوط</h2>
-            <p>سجل دفعات الخطوط — شحن وسداد</p>
+            <h2>تسديد الخطوط</h2>
+            <p>سجل تسديدات الخطوط — دفع واستلام</p>
         </div>
     </section>
 
     <section class="dashboard-panel">
         <details class="form-collapse">
-            <summary class="btn primary">+ دفع خط جديد</summary>
+            <summary class="btn primary">+ تسديد خط جديد</summary>
             <form method="post" action="/line-payments/store" class="entity-form">
                 <?= csrf_field() ?>
                 <div class="form-grid">
@@ -23,21 +23,21 @@
                     <label>المبلغ (ريال)<input name="amount" type="number" min="1" required></label>
                     <label>النوع
                         <select name="direction">
-                            <option value="out">مدفوع (خارج)</option>
-                            <option value="in">وارد (داخل)</option>
+                            <option value="out">مدفوع (خرج)</option>
+                            <option value="in">مستلم (دخل)</option>
                         </select>
                     </label>
                     <label>ملاحظة<input name="note" placeholder="اختياري"></label>
                 </div>
-                <button class="btn primary" type="submit">تسجيل الدفعة</button>
+                <button class="btn primary" type="submit">تسجيل التسديد</button>
             </form>
         </details>
     </section>
 
     <section class="dashboard-panel">
-        <div class="section-title"><h3>سجل دفعات الخطوط</h3><span>▭</span></div>
+        <div class="section-title"><h3>سجل تسديدات الخطوط</h3><span>▭</span></div>
         <?php if (empty($payments)): ?>
-            <div class="empty-state">لا توجد دفعات حتى الآن</div>
+            <div class="empty-state">لا توجد تسديدات حتى الآن</div>
         <?php else: ?>
             <table class="data-table">
                 <thead>
@@ -49,10 +49,10 @@
                         <td><?= ar_date($p['created_at']) ?></td>
                         <td><?= e($p['line_name'] ?? '') ?></td>
                         <td><?= money($p['amount']) ?></td>
-                        <td><?= $p['direction'] === 'out' ? 'خارج' : 'داخل' ?></td>
+                        <td><?= $p['direction'] === 'out' ? 'خرج' : 'دخل' ?></td>
                         <td><?= e($p['note'] ?? '') ?></td>
                         <td class="actions-cell">
-                            <form method="post" action="/line-payments/delete" class="inline-form" onsubmit="return confirm('حذف هذه الدفعة؟')">
+                            <form method="post" action="/line-payments/delete" class="inline-form" onsubmit="return confirm('حذف هذا التسديد؟')">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
                                 <button class="btn sm danger" type="submit">حذف</button>
