@@ -5,9 +5,6 @@ namespace Models;
 
 use Model;
 
-/**
- * Package — a card denomination sold by the network.
- */
 final class Package extends Model
 {
     public function all(): array
@@ -22,12 +19,12 @@ final class Package extends Model
 
     public function count(): int
     {
-        return (int)$this->fetchScalar('SELECT COUNT(*) FROM packages');
+        return $this->fetchInt('SELECT COUNT(*) FROM packages');
     }
 
     public function countActive(): int
     {
-        return (int)$this->fetchScalar("SELECT COUNT(*) FROM packages WHERE status = 'active'");
+        return $this->fetchInt("SELECT COUNT(*) FROM packages WHERE status = 'active'");
     }
 
     public function find(int $id): ?array
@@ -42,27 +39,18 @@ final class Package extends Model
 
     public function update(int $id, array $data): int
     {
-        $set = [];
-        foreach (array_keys($data) as $col) {
-            $set[] = $col . ' = :' . $col;
-        }
-        $data['id'] = $id;
-        return $this->execute(
-            'UPDATE packages SET ' . implode(', ', $set) . ' WHERE id = :id',
-            $data
-        );
+        return $this->updateRow('packages', $id, $data);
     }
 
     public function delete(int $id): int
     {
-        return $this->execute('DELETE FROM packages WHERE id = ?', [$id]);
+        return $this->deleteRow('packages', $id);
     }
 
-    /** Total inventory value grouped by package price (used on the dashboard). */
-    public function inventoryValue(): float
+    public function inventoryValue(): int
     {
-        return (float)$this->fetchScalar(
-            'SELECT COALESCE(SUM(i.quantity * i.unit_price), 0) FROM inventory i'
+        return $this->fetchInt(
+            'SELECT COALESCE(SUM(i.quantity * i.bundle_price), 0) FROM inventory i WHERE i.status = \'active\''
         );
     }
 }

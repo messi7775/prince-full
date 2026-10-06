@@ -16,19 +16,23 @@ CREATE TABLE IF NOT EXISTS admins (
 );
 
 INSERT INTO admins (email, password_hash)
-VALUES ('ibrabra651@gmail.com', '$2y$12$OksurUunRjk.srg0GLmqPOND.WknqH71YwE4m4vYoPkLo46o8/gci')
+VALUES ('ibrabra651@gmail.com', '$2y$10$VwCLBszvFQucpUSEWJ.Xw.w7kpAecHgyjmG6QGaFJqXlK0fTIrz0W')
 ON DUPLICATE KEY UPDATE
     password_hash = VALUES(password_hash),
     updated_at = CURRENT_TIMESTAMP;
 
 -- ---------------------------------------------------------------------------
--- Packages (card denominations)
+-- Packages (card denominations — sold by BUNDLE / شدة)
+--   price           = card face value (ريال)
+--   bundle_size     = cards per bundle (شدة), e.g. 50
+--   bundle_price    = price of one bundle (شدة), e.g. 5000
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS packages (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(190) NOT NULL,
-    price DECIMAL(12,2) NOT NULL DEFAULT 0,
-    size VARCHAR(64) NULL,
+    price INT NOT NULL DEFAULT 0,
+    bundle_size INT NOT NULL DEFAULT 1,
+    bundle_price INT NOT NULL DEFAULT 0,
     hours INT UNSIGNED NULL,
     color VARCHAR(32) NULL,
     duration VARCHAR(64) NULL,
@@ -38,41 +42,48 @@ CREATE TABLE IF NOT EXISTS packages (
 );
 
 -- ---------------------------------------------------------------------------
--- Inventory (stock batches — unit_price captured for historical accuracy)
+-- Inventory (stock batches — bundle_price captured for historical accuracy)
+--   quantity = number of BUNDLES in this batch
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS inventory (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     package_id INT UNSIGNED NOT NULL,
     quantity INT NOT NULL DEFAULT 0,
-    unit_price DECIMAL(12,2) NOT NULL DEFAULT 0,
+    bundle_price INT NOT NULL DEFAULT 0,
     status ENUM('active','closed') NOT NULL DEFAULT 'active',
+    note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_inventory_package FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE
 );
 
 -- ---------------------------------------------------------------------------
 -- Distributors (resellers)
+--   balance is DERIVED (credit sales - payments), not stored
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS distributors (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(190) NOT NULL,
     phone VARCHAR(32) NULL,
-    balance DECIMAL(12,2) NOT NULL DEFAULT 0,
+    note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- ---------------------------------------------------------------------------
--- Sales (unit_price stored per item for historical pricing)
+-- Sales — sold by BUNDLE (شدة)
+--   bundles_count = عدد الشدات
+--   bundle_price  = سعر الشدة (captured at sale time)
+--   total         = bundles_count × bundle_price (integer)
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS sales (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     distributor_id INT UNSIGNED NULL,
     package_id INT UNSIGNED NULL,
-    quantity INT NOT NULL DEFAULT 1,
-    unit_price DECIMAL(12,2) NOT NULL DEFAULT 0,
-    total DECIMAL(12,2) NOT NULL DEFAULT 0,
+    bundles_count INT NOT NULL DEFAULT 1,
+    bundle_price INT NOT NULL DEFAULT 0,
+    total INT NOT NULL DEFAULT 0,
     payment_type ENUM('cash','credit') NOT NULL DEFAULT 'cash',
+    note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_sale_distributor FOREIGN KEY (distributor_id) REFERENCES distributors(id) ON DELETE SET NULL,
     CONSTRAINT fk_sale_package FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE SET NULL
@@ -84,7 +95,7 @@ CREATE TABLE IF NOT EXISTS sales (
 CREATE TABLE IF NOT EXISTS payments (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     distributor_id INT UNSIGNED NOT NULL,
-    amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    amount INT NOT NULL DEFAULT 0,
     note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_payment_distributor FOREIGN KEY (distributor_id) REFERENCES distributors(id) ON DELETE CASCADE
@@ -92,12 +103,36 @@ CREATE TABLE IF NOT EXISTS payments (
 
 -- ---------------------------------------------------------------------------
 -- Lines (telecom line accounts)
+--   balance is DERIVED from line_payments
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `lines` (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(190) NOT NULL,
     provider VARCHAR(190) NULL,
-    balance DECIMAL(12,2) NOT NULL DEFAULT 0,
+    note VARCHAR(255) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ---------------------------------------------------------------------------
+-- Line payments (recharge / payment for each line)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS line_payments (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    line_id INT UNSIGNED NOT NULL,
+    amount INT NOT NULL DEFAULT 0,
+    direction ENUM('in','out') NOT NULL DEFAULT 'out',
+    note VARCHAR(255) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_linepay_line FOREIGN KEY (line_id) REFERENCES `lines`(id) ON DELETE CASCADE
+);
+
+-- ---------------------------------------------------------------------------
+-- Owner withdrawals (سحوبات المالك)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS owner_withdrawals (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    amount INT NOT NULL DEFAULT 0,
+    note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -107,18 +142,18 @@ CREATE TABLE IF NOT EXISTS `lines` (
 CREATE TABLE IF NOT EXISTS expenses (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     category VARCHAR(190) NOT NULL,
-    amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    amount INT NOT NULL DEFAULT 0,
     note VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ---------------------------------------------------------------------------
--- Cash movements (every cash in/out event)
+-- Cash movements (every cash in/out event — for audit and dashboard)
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS cash_movements (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     direction ENUM('in','out') NOT NULL,
-    amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    amount INT NOT NULL DEFAULT 0,
     reason VARCHAR(190) NOT NULL,
     reference_type VARCHAR(64) NULL,
     reference_id INT UNSIGNED NULL,

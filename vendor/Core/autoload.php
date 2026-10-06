@@ -22,6 +22,8 @@ spl_autoload_register(static function (string $class): void {
         'Services\\'     => APP_ROOT . '/app/Services/',
     ];
 
+    // Models in subdirectories: Models\OwnerWithdrawal etc.
+
     foreach ($map as $prefix => $dir) {
         if (str_starts_with($class, $prefix)) {
             $relative = substr($class, strlen($prefix));

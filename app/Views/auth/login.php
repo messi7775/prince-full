@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#111827">
-    <title>تسجيل الدخول | نظام إدارة الكروت</title>
+    <meta name="theme-color" content="#0d1528">
+    <title>تسجيل الدخول | شبكة البرنس</title>
     <link rel="stylesheet" href="/assets/css/app.css">
 </head>
 <body class="login-page">
@@ -12,8 +12,8 @@
         <div class="brand login-brand">
             <div class="brand-mark">PN</div>
             <div>
-                <strong>نظام إدارة الكروت</strong>
-                <span>Prince Cards</span>
+                <strong>شبكة البرنس</strong>
+                <span>Prince Network</span>
             </div>
         </div>
 

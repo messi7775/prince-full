@@ -7,10 +7,6 @@ use Controller;
 use Request;
 use Services\ReportService;
 
-/**
- * DashboardController — main dashboard. Pulls real KPI data from the
- * ReportService; shows 0 when there is no data (README §9, §13).
- */
 final class DashboardController extends Controller
 {
     public function index(Request $request): void

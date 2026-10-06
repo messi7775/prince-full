@@ -6,16 +6,11 @@ namespace Controllers;
 use Controller;
 use Request;
 use Session;
-use Response;
 use Services\AuthService;
 use Models\AuditLog;
 
-/**
- * AuthController — login, logout, and root redirect.
- */
 final class AuthController extends Controller
 {
-    /** Redirect root to dashboard or login depending on auth state. */
     public function root(Request $request): void
     {
         if (Session::isAuthenticated()) {
@@ -53,7 +48,9 @@ final class AuthController extends Controller
 
     public function logout(Request $request): void
     {
-        (new AuditLog())->log('logout', 'تسجيل الخروج');
+        if (Session::isAuthenticated()) {
+            (new AuditLog())->log('logout', 'تسجيل الخروج');
+        }
         Session::logout();
         $this->redirect('/login');
     }

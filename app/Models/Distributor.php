@@ -5,16 +5,17 @@ namespace Models;
 
 use Model;
 
-/**
- * Distributor — a reseller. The balance is derived from movements:
- *   balance = total credit sales - total payments
- * never stored (README §14).
- */
 final class Distributor extends Model
 {
     public function all(): array
     {
-        return $this->fetchAll('SELECT * FROM distributors ORDER BY name');
+        return $this->fetchAll(
+            'SELECT d.*,
+                    COALESCE((SELECT SUM(s.total) FROM sales s WHERE s.distributor_id = d.id AND s.payment_type = \'credit\'), 0) AS credit_total,
+                    COALESCE((SELECT SUM(p.amount) FROM payments p WHERE p.distributor_id = d.id), 0) AS paid_total
+               FROM distributors d
+              ORDER BY d.name'
+        );
     }
 
     public function find(int $id): ?array
@@ -27,36 +28,45 @@ final class Distributor extends Model
         return $this->insert('distributors', $data);
     }
 
+    public function update(int $id, array $data): int
+    {
+        return $this->updateRow('distributors', $id, $data);
+    }
+
+    public function delete(int $id): int
+    {
+        return $this->deleteRow('distributors', $id);
+    }
+
     public function count(): int
     {
-        return (int)$this->fetchScalar('SELECT COUNT(*) FROM distributors');
+        return $this->fetchInt('SELECT COUNT(*) FROM distributors');
     }
 
     /** Total outstanding debt across all distributors. */
-    public function totalDebt(): float
+    public function totalDebt(): int
     {
-        return (float)$this->fetchScalar(
+        return $this->fetchInt(
             "SELECT COALESCE(SUM(
-                (SELECT COALESCE(SUM(total), 0) FROM sales s WHERE s.distributor_id = d.id AND s.payment_type = 'credit')
+                (SELECT COALESCE(SUM(s.total), 0) FROM sales s WHERE s.distributor_id = d.id AND s.payment_type = 'credit')
                 -
-                (SELECT COALESCE(SUM(amount), 0) FROM payments p WHERE p.distributor_id = d.id)
+                (SELECT COALESCE(SUM(p.amount), 0) FROM payments p WHERE p.distributor_id = d.id)
             ), 0)
                FROM distributors d
-              HAVING SUM(...) > 0"
+              HAVING SUM(1) > 0"
         );
     }
 
-    /** One distributor's current balance (credit sales − payments). */
-    public function balance(int $id): float
+    public function balance(int $id): int
     {
-        $sales = (float)$this->fetchScalar(
+        $credit = $this->fetchInt(
             "SELECT COALESCE(SUM(total), 0) FROM sales WHERE distributor_id = ? AND payment_type = 'credit'",
             [$id]
         );
-        $paid = (float)$this->fetchScalar(
+        $paid = $this->fetchInt(
             'SELECT COALESCE(SUM(amount), 0) FROM payments WHERE distributor_id = ?',
             [$id]
         );
-        return $sales - $paid;
+        return $credit - $paid;
     }
 }

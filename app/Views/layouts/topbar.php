@@ -1,7 +1,6 @@
 <header class="topbar">
     <div class="topbar-side">
-        <button class="icon-btn" type="button" aria-label="الوضع الداكن">☾</button>
-        <button class="icon-btn notification-btn" type="button" aria-label="التنبيهات" data-notifications>♧<i>3</i></button>
+        <button class="icon-btn" type="button" aria-label="القائمة" data-menu-toggle>☰</button>
     </div>
 
     <div class="topbar-brand">
@@ -9,5 +8,7 @@
         <span>⌘</span>
     </div>
 
-    <button class="icon-btn menu-toggle" type="button" aria-label="فتح القائمة" data-menu-toggle>☰</button>
+    <div class="topbar-side">
+        <a class="icon-btn" href="/logout" aria-label="تسجيل الخروج" style="text-decoration:none">↪</a>
+    </div>
 </header>

@@ -1,33 +1,51 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Route table — method => [path => [Controller, action]].
- *
- * The Router currently resolves static paths only; this keeps the URL
- * scheme simple and matches the README's flat section links.
- */
 return [
-
     'GET' => [
-        '/'                 => ['Controllers\\AuthController', 'root'],
-        '/login'            => ['Controllers\\AuthController', 'login'],
-        '/logout'           => ['Controllers\\AuthController', 'logout'],
-        '/dashboard'        => ['Controllers\\DashboardController', 'index'],
-        '/packages'         => ['Controllers\\PackageController', 'index'],
-        '/inventory'        => ['Controllers\\InventoryController', 'index'],
-        '/distributors'     => ['Controllers\\DistributorController', 'index'],
-        '/sales'            => ['Controllers\\SaleController', 'index'],
-        '/payments'         => ['Controllers\\PaymentController', 'index'],
-        '/lines'            => ['Controllers\\LineController', 'index'],
-        '/line-payments'    => ['Controllers\\LineController', 'payments'],
-        '/expenses'         => ['Controllers\\ExpenseController', 'index'],
-        '/owner-withdrawals'=> ['Controllers\\CashController', 'withdrawals'],
-        '/cash'             => ['Controllers\\CashController', 'index'],
-        '/reports'          => ['Controllers\\ReportController', 'index'],
-        '/search'           => ['Controllers\\ReportController', 'search'],
-        '/audit'            => ['Controllers\\SettingsController', 'audit'],
-        '/settings'         => ['Controllers\\SettingsController', 'index'],
-        '/backup'           => ['Controllers\\SettingsController', 'backup'],
+        '/'                  => ['Controllers\\AuthController', 'root'],
+        '/login'             => ['Controllers\\AuthController', 'login'],
+        '/logout'            => ['Controllers\\AuthController', 'logout'],
+        '/dashboard'         => ['Controllers\\DashboardController', 'index'],
+        '/packages'          => ['Controllers\\PackageController', 'index'],
+        '/inventory'         => ['Controllers\\InventoryController', 'index'],
+        '/distributors'      => ['Controllers\\DistributorController', 'index'],
+        '/sales'             => ['Controllers\\SaleController', 'index'],
+        '/payments'          => ['Controllers\\PaymentController', 'index'],
+        '/lines'             => ['Controllers\\LineController', 'index'],
+        '/line-payments'     => ['Controllers\\LineController', 'payments'],
+        '/expenses'          => ['Controllers\\ExpenseController', 'index'],
+        '/owner-withdrawals' => ['Controllers\\CashController', 'withdrawals'],
+        '/cash'              => ['Controllers\\CashController', 'index'],
+        '/reports'           => ['Controllers\\ReportController', 'index'],
+        '/search'            => ['Controllers\\ReportController', 'search'],
+        '/audit'             => ['Controllers\\SettingsController', 'audit'],
+        '/settings'          => ['Controllers\\SettingsController', 'index'],
+        '/backup'            => ['Controllers\\SettingsController', 'backup'],
+    ],
+    'POST' => [
+        '/login'              => ['Controllers\\AuthController', 'login'],
+        '/logout'             => ['Controllers\\AuthController', 'logout'],
+        '/packages/store'     => ['Controllers\\PackageController', 'store'],
+        '/packages/update'    => ['Controllers\\PackageController', 'update'],
+        '/packages/delete'    => ['Controllers\\PackageController', 'delete'],
+        '/inventory/store'    => ['Controllers\\InventoryController', 'store'],
+        '/inventory/delete'   => ['Controllers\\InventoryController', 'delete'],
+        '/distributors/store' => ['Controllers\\DistributorController', 'store'],
+        '/distributors/delete'=> ['Controllers\\DistributorController', 'delete'],
+        '/sales/store'        => ['Controllers\\SaleController', 'store'],
+        '/sales/delete'       => ['Controllers\\SaleController', 'delete'],
+        '/payments/store'     => ['Controllers\\PaymentController', 'store'],
+        '/payments/delete'    => ['Controllers\\PaymentController', 'delete'],
+        '/lines/store'        => ['Controllers\\LineController', 'store'],
+        '/lines/delete'       => ['Controllers\\LineController', 'delete'],
+        '/line-payments/store'=> ['Controllers\\LineController', 'storePayment'],
+        '/line-payments/delete'=> ['Controllers\\LineController', 'deletePayment'],
+        '/expenses/store'     => ['Controllers\\ExpenseController', 'store'],
+        '/expenses/delete'    => ['Controllers\\ExpenseController', 'delete'],
+        '/owner-withdrawals/store'  => ['Controllers\\CashController', 'storeWithdrawal'],
+        '/owner-withdrawals/delete' => ['Controllers\\CashController', 'deleteWithdrawal'],
+        '/settings/password'  => ['Controllers\\SettingsController', 'changePassword'],
+        '/backup/create'      => ['Controllers\\SettingsController', 'createBackup'],
     ],
 ];

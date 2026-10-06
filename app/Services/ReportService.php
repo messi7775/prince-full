@@ -10,12 +10,9 @@ use Models\Distributor;
 use Models\Inventory;
 use Models\Package;
 use Models\CashMovement;
+use Models\Line;
+use Models\OwnerWithdrawal;
 
-/**
- * ReportService — aggregates data from several models for the dashboard
- * and the reports section. Keeping this logic out of controllers avoids
- * fat controllers and out of models avoids cross-model coupling.
- */
 final class ReportService
 {
     private Sale $sales;
@@ -25,6 +22,8 @@ final class ReportService
     private Inventory $inventory;
     private Package $packages;
     private CashMovement $cash;
+    private Line $lines;
+    private OwnerWithdrawal $withdrawals;
 
     public function __construct()
     {
@@ -35,9 +34,10 @@ final class ReportService
         $this->inventory    = new Inventory();
         $this->packages     = new Package();
         $this->cash         = new CashMovement();
+        $this->lines        = new Line();
+        $this->withdrawals  = new OwnerWithdrawal();
     }
 
-    /** All KPI figures for the dashboard, keyed for the view. */
     public function dashboardKpis(): array
     {
         return [
@@ -50,17 +50,13 @@ final class ReportService
             'distributors_count' => $this->distributors->count(),
             'packages_count'     => $this->packages->count(),
             'packages_active'    => $this->packages->countActive(),
-            'owner_withdrawals'  => $this->ownerWithdrawalsTotal(),
+            'owner_withdrawals'  => $this->withdrawals->total(),
             'expenses_total'     => $this->expenses->total(),
             'cash_payments_out'  => $this->cash->totalOut(),
             'cash_receipts_in'   => $this->cash->totalIn(),
+            'lines_count'        => $this->lines->count(),
+            'total_bundles_sold' => $this->sales->totalBundles(),
         ];
-    }
-
-    /** Owner withdrawals = total of cash_movements with reason 'owner_withdrawal'. */
-    public function ownerWithdrawalsTotal(): float
-    {
-        return (float)$this->cash->totalOut(); // simplified aggregate
     }
 
     public function recentOperations(int $limit = 10): array
@@ -71,5 +67,52 @@ final class ReportService
     public function inventoryStatus(): array
     {
         return $this->inventory->stockByPackage();
+    }
+
+    public function salesReport(): array
+    {
+        return $this->sales->all();
+    }
+
+    public function paymentsReport(): array
+    {
+        return $this->payments->all();
+    }
+
+    public function expensesReport(): array
+    {
+        return $this->expenses->all();
+    }
+
+    public function cashReport(): array
+    {
+        return $this->cash->all(500);
+    }
+
+    public function search(string $query): array
+    {
+        $q = '%' . $query . '%';
+        $results = [];
+
+        // Search distributors
+        $distributors = $this->distributors->all();
+        foreach ($distributors as $d) {
+            if (mb_stripos($d['name'] ?? '', $query) !== false
+                || mb_stripos($d['phone'] ?? '', $query) !== false) {
+                $results['distributors'][] = $d;
+            }
+        }
+
+        // Search sales by distributor name or note
+        $sales = $this->sales->all();
+        foreach ($sales as $s) {
+            if (mb_stripos($s['distributor_name'] ?? '', $query) !== false
+                || mb_stripos($s['package_name'] ?? '', $query) !== false
+                || mb_stripos($s['note'] ?? '', $query) !== false) {
+                $results['sales'][] = $s;
+            }
+        }
+
+        return $results;
     }
 }

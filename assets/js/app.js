@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.querySelector('[data-sidebar]');
-    const toggle = document.querySelector('[data-menu-toggle]');
+    const toggles = document.querySelectorAll('[data-menu-toggle]');
     const overlay = document.querySelector('[data-menu-overlay]');
 
     const closeMenu = () => {
@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay?.classList.remove('open');
     };
 
-    toggle?.addEventListener('click', () => {
+    toggles.forEach(t => t.addEventListener('click', () => {
         sidebar?.classList.toggle('open');
         overlay?.classList.toggle('open');
-    });
+    }));
 
     overlay?.addEventListener('click', closeMenu);
 });

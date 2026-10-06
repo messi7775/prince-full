@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0b1224">
-    <title><?= htmlspecialchars($pageTitle ?? 'لوحة التحكم') ?> | شبكة البرنس</title>
+    <title><?= e($pageTitle ?? 'لوحة التحكم') ?> | شبكة البرنس</title>
     <link rel="stylesheet" href="/assets/css/app.css">
 </head>
 <body>
@@ -17,11 +17,11 @@
         <?= $content ?? '' ?>
 
         <nav class="mobile-bottom-nav" aria-label="التنقل السريع">
-            <a href="/search"><span>⌕</span><small>البحث</small></a>
-            <a href="/cash"><span>▥</span><small>الصندوق</small></a>
-            <a href="/sales"><span>🛒</span><small>المبيعات</small></a>
-            <a href="/packages"><span>◇</span><small>الباقات</small></a>
-            <a class="active" href="/dashboard"><span>▦</span><small>الرئيسية</small></a>
+            <a href="/search" class="<?= ($active ?? '') === 'search' ? 'active' : '' ?>"><span>⌕</span><small>البحث</small></a>
+            <a href="/cash" class="<?= ($active ?? '') === 'cash' ? 'active' : '' ?>"><span>▥</span><small>الصندوق</small></a>
+            <a href="/sales" class="<?= ($active ?? '') === 'sales' ? 'active' : '' ?>"><span>🛒</span><small>المبيعات</small></a>
+            <a href="/packages" class="<?= ($active ?? '') === 'packages' ? 'active' : '' ?>"><span>◇</span><small>الباقات</small></a>
+            <a href="/dashboard" class="<?= ($active ?? '') === 'dashboard' ? 'active' : '' ?>"><span>▦</span><small>الرئيسية</small></a>
         </nav>
     </main>
 </div>

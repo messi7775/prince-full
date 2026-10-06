@@ -5,9 +5,6 @@ namespace Models;
 
 use Model;
 
-/**
- * Expense — operating costs (electricity, internet, maintenance, ...).
- */
 final class Expense extends Model
 {
     public function all(): array
@@ -20,8 +17,18 @@ final class Expense extends Model
         return $this->insert('expenses', $data);
     }
 
-    public function total(): float
+    public function delete(int $id): int
     {
-        return (float)$this->fetchScalar('SELECT COALESCE(SUM(amount), 0) FROM expenses');
+        return $this->deleteRow('expenses', $id);
+    }
+
+    public function total(): int
+    {
+        return $this->fetchInt('SELECT COALESCE(SUM(amount), 0) FROM expenses');
+    }
+
+    public function totalToday(): int
+    {
+        return $this->fetchInt('SELECT COALESCE(SUM(amount), 0) FROM expenses WHERE DATE(created_at) = CURDATE()');
     }
 }

@@ -5,10 +5,6 @@ namespace Models;
 
 use Model;
 
-/**
- * Payment — a collection from a distributor against their credit sales.
- * Supports full or partial payments (README §9).
- */
 final class Payment extends Model
 {
     public function all(): array
@@ -26,15 +22,18 @@ final class Payment extends Model
         return $this->insert('payments', $data);
     }
 
-    public function totalToday(): float
+    public function delete(int $id): int
     {
-        return (float)$this->fetchScalar(
-            'SELECT COALESCE(SUM(amount), 0) FROM payments WHERE DATE(created_at) = CURDATE()'
-        );
+        return $this->deleteRow('payments', $id);
     }
 
-    public function total(): float
+    public function totalToday(): int
     {
-        return (float)$this->fetchScalar('SELECT COALESCE(SUM(amount), 0) FROM payments');
+        return $this->fetchInt('SELECT COALESCE(SUM(amount), 0) FROM payments WHERE DATE(created_at) = CURDATE()');
+    }
+
+    public function total(): int
+    {
+        return $this->fetchInt('SELECT COALESCE(SUM(amount), 0) FROM payments');
     }
 }
