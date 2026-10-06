@@ -56,8 +56,21 @@ final class DistributorController extends Controller
 
         $id = (int)$request->input('id', 0);
         if ($id > 0) {
-            $d = (new Distributor())->find($id);
-            (new Distributor())->delete($id);
+            $distributor = new Distributor();
+
+            // Prevent deletion if balance > 0
+            $balance = $distributor->balance($id);
+            if ($balance > 0) {
+                $d = $distributor->find($id);
+                $name = $d['name'] ?? '';
+                $this->logAudit('distributor_delete_blocked', "منع حذف موزع {$name} — رصيد مستحق: {$balance}");
+                // Redirect with error message via session flash
+                \Session::flash('error', "لا يمكن حذف الموزع «{$name}» لأن لديه رصيد مستحق: " . money($balance));
+                $this->redirect('/distributors');
+            }
+
+            $d = $distributor->find($id);
+            $distributor->delete($id);
             if ($d) {
                 $this->logAudit('distributor_delete', 'حذف موزع: ' . ($d['name'] ?? ''));
             }

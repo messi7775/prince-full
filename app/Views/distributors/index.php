@@ -6,6 +6,13 @@
         </div>
     </section>
 
+    <?php $flashError = \Session::flashGet('error'); ?>
+    <?php if ($flashError): ?>
+    <div class="dashboard-panel alert-panel">
+        <div class="alert-message" style="color:#e11d48; font-weight:bold; padding:12px 16px;">⚠ <?= e($flashError) ?></div>
+    </div>
+    <?php endif; ?>
+
     <section class="dashboard-panel">
         <details class="form-collapse">
             <summary class="btn primary">+ إضافة موزع جديد</summary>
@@ -28,24 +35,16 @@
         <?php else: ?>
             <table class="data-table">
                 <thead>
-                    <tr><th>الاسم</th><th>الهاتف</th><th>الآجل</th><th>المسدد</th><th>المقسط</th><th>الرصيد المستحق</th><th>إجراءات</th></tr>
+                    <tr><th>الاسم</th><th>الهاتف</th><th>الآجل</th><th>التحصيل</th><th>الرصيد المستحق</th><th>إجراءات</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($distributors as $d): ?>
-                    <?php
-                        $credit      = (int)$d['credit_total'];
-                        $installment = (int)$d['installment_total'];
-                        $installmentPaid = (int)$d['installment_paid'];
-                        $paid_total  = (int)$d['paid_total'];
-                        $settled     = $installmentPaid + $paid_total; // المسدد
-                        $balance     = $credit + $installment - $settled; // الرصيد المستحق
-                    ?>
+                    <?php $balance = (int)$d['credit_total'] - (int)$d['paid_total']; ?>
                     <tr>
                         <td><?= e($d['name']) ?></td>
                         <td><?= e($d['phone'] ?? '') ?></td>
-                        <td><?= money($credit) ?></td>
-                        <td><?= money($settled) ?></td>
-                        <td><?= money($installment) ?></td>
+                        <td><?= money($d['credit_total']) ?></td>
+                        <td><?= money($d['paid_total']) ?></td>
                         <td><span class="badge <?= $balance > 0 ? 'zero' : 'ok' ?>"><?= money($balance) ?></span></td>
                         <td class="actions-cell">
                             <form method="post" action="/distributors/delete" class="inline-form" onsubmit="return confirm('حذف هذا الموزع؟')">

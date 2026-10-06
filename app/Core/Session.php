@@ -38,6 +38,22 @@ final class Session
         unset($_SESSION[$key]);
     }
 
+    /** Set a one-time flash message (read and cleared via flashGet). */
+    public static function flash(string $key, mixed $value): void
+    {
+        self::start();
+        $_SESSION['_flash'][$key] = $value;
+    }
+
+    /** Read and immediately clear a flash message. Returns null if not set. */
+    public static function flashGet(string $key): mixed
+    {
+        self::start();
+        $value = $_SESSION['_flash'][$key] ?? null;
+        unset($_SESSION['_flash'][$key]);
+        return $value;
+    }
+
     /** Mark the current admin as logged in (regenerates the session id). */
     public static function login(int $adminId, string $email): void
     {

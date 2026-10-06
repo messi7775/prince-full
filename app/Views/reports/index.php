@@ -32,7 +32,7 @@
                         <td><?= int_num($r['bundles_count']) ?></td>
                         <td><?= money($r['bundle_price']) ?></td>
                         <td><?= money($r['total']) ?></td>
-                        <td><?= $r['payment_type'] === 'cash' ? 'نقدي' : ($r['payment_type'] === 'installment' ? 'تقسيط' : 'آجل') ?></td>
+                        <td><?= $r['payment_type'] === 'cash' ? 'نقدي' : 'آجل' ?></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>

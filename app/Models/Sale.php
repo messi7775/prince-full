@@ -18,9 +18,19 @@ final class Sale extends Model
         );
     }
 
+    public function find(int $id): ?array
+    {
+        return $this->fetchOne('SELECT * FROM sales WHERE id = ?', [$id]);
+    }
+
     public function create(array $data): int
     {
         return $this->insert('sales', $data);
+    }
+
+    public function update(int $id, array $data): int
+    {
+        return $this->updateRow('sales', $id, $data);
     }
 
     public function delete(int $id): int

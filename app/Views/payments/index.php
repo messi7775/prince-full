@@ -16,19 +16,12 @@
                         <select name="distributor_id" required>
                             <option value="">— اختر —</option>
                             <?php foreach ($distributors as $d): ?>
-                                <?php
-                                    $credit      = (int)$d['credit_total'];
-                                    $installment = (int)$d['installment_total'];
-                                    $installmentPaid = (int)$d['installment_paid'];
-                                    $paid_total  = (int)$d['paid_total'];
-                                    $settled     = $installmentPaid + $paid_total;
-                                    $bal         = $credit + $installment - $settled;
-                                ?>
+                                <?php $bal = (int)$d['credit_total'] - (int)$d['paid_total']; ?>
                                 <option value="<?= (int)$d['id'] ?>"><?= e($d['name']) ?> — مستحق: <?= money($bal) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </label>
-                    <label>المبلغ (ريال)<input name="amount" type="number" min="1" required></label>
+                    <label>مبلغ التحصيل (ريال)<input name="amount" type="number" min="1" required></label>
                     <label>ملاحظة<input name="note" placeholder="اختياري"></label>
                 </div>
                 <button class="btn primary" type="submit">تسجيل التحصيل</button>
@@ -43,7 +36,7 @@
         <?php else: ?>
             <table class="data-table">
                 <thead>
-                    <tr><th>التاريخ</th><th>الموزع</th><th>المبلغ</th><th>ملاحظة</th><th>إجراءات</th></tr>
+                    <tr><th>التاريخ</th><th>الموزع</th><th>مبلغ التحصيل</th><th>الملاحظة</th><th>إجراءات</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($payments as $p): ?>

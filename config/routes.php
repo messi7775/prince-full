@@ -36,6 +36,7 @@ return [
         '/distributors/store' => ['Controllers\\DistributorController', 'store'],
         '/distributors/delete'=> ['Controllers\\DistributorController', 'delete'],
         '/sales/store'        => ['Controllers\\SaleController', 'store'],
+        '/sales/update'       => ['Controllers\\SaleController', 'update'],
         '/sales/delete'       => ['Controllers\\SaleController', 'delete'],
         '/payments/store'     => ['Controllers\\PaymentController', 'store'],
         '/payments/delete'    => ['Controllers\\PaymentController', 'delete'],
