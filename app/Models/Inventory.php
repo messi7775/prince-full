@@ -10,7 +10,7 @@ final class Inventory extends Model
     public function all(): array
     {
         return $this->fetchAll(
-            'SELECT i.*, p.name AS package_name, p.bundle_price AS pkg_bundle_price
+            'SELECT i.*, p.name AS package_name
                FROM inventory i
                JOIN packages p ON p.id = i.package_id
               ORDER BY p.bundle_price DESC'
@@ -27,14 +27,16 @@ final class Inventory extends Model
         return $this->fetchOne('SELECT * FROM inventory WHERE package_id = ?', [$packageId]);
     }
 
-    /** Create an inventory row (one per package). */
     public function create(array $data): int
     {
         return $this->insert('inventory', $data);
     }
 
-    /** Find an inventory row by package_id, or create one with quantity=0. */
-    public function findOrCreateByPackage(int $packageId, int $bundlePrice = 0): array
+    /**
+     * Find an inventory row by package_id, or create one with the given
+     * default quantity and bundle price (one row per package).
+     */
+    public function findOrCreateByPackage(int $packageId, int $quantity, int $bundlePrice): array
     {
         $row = $this->findByPackageId($packageId);
         if ($row !== null) {
@@ -43,25 +45,25 @@ final class Inventory extends Model
 
         $this->insert('inventory', [
             'package_id'   => $packageId,
-            'quantity'      => 0,
-            'bundle_price'  => $bundlePrice,
-            'status'        => 'active',
-            'note'          => null,
+            'quantity'     => $quantity,
+            'bundle_price' => $bundlePrice,
+            'status'       => 'active',
+            'note'         => null,
         ]);
 
         return $this->findByPackageId($packageId);
     }
 
-    /** Add quantity to an inventory row (إضافة). */
+    /** إضافة — add quantity to an inventory row. */
     public function addQuantity(int $inventoryId, int $amount): bool
     {
         return $this->execute(
-            'UPDATE inventory SET quantity = quantity + ?, status = \'active\' WHERE id = ?',
+            "UPDATE inventory SET quantity = quantity + ?, status = 'active' WHERE id = ?",
             [$amount, $inventoryId]
         ) > 0;
     }
 
-    /** Replace quantity on an inventory row (تعديل). */
+    /** تعديل — replace the quantity on an inventory row. */
     public function setQuantity(int $inventoryId, int $quantity): bool
     {
         $status = $quantity > 0 ? 'active' : 'closed';
@@ -94,7 +96,7 @@ final class Inventory extends Model
         );
     }
 
-    // ── Sale deduction (kept compatible with single-row model) ─────────────
+    // ── Sale deduction (compatible with single-row-per-package model) ──────
 
     /** Get active inventory rows for a package (for sale deduction). */
     public function activeBatches(int $packageId): array

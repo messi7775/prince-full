@@ -7,7 +7,6 @@ use Controller;
 use Request;
 use Models\Inventory;
 use Models\Package;
-use Models\AuditLog;
 use Session;
 
 final class InventoryController extends Controller
@@ -17,6 +16,7 @@ final class InventoryController extends Controller
         $this->requireAuth();
 
         $inventory = new Inventory();
+
         $items     = $inventory->all();
         $lowStock  = $inventory->lowStock();
         $movements = $inventory->movements();
@@ -33,7 +33,7 @@ final class InventoryController extends Controller
         Session::forget('inventory_error');
     }
 
-    /** إضافة: add quantity to current stock. */
+    /** إضافة — add quantity to the current stock; value updates automatically. */
     public function add(Request $request): void
     {
         $this->requireAuth();
@@ -61,20 +61,20 @@ final class InventoryController extends Controller
         $inventory->addQuantity($id, $quantity);
         $inventory->logMovement([
             'package_id'   => (int)$row['package_id'],
-            'action'        => 'add',
-            'old_quantity'  => $oldQty,
-            'new_quantity'  => $newQty,
-            'bundle_price'  => $price,
-            'old_value'     => $oldQty * $price,
-            'new_value'     => $newQty * $price,
-            'note'          => 'إضافة ' . $quantity . ' شدة',
+            'action'       => 'add',
+            'old_quantity' => $oldQty,
+            'new_quantity' => $newQty,
+            'bundle_price' => $price,
+            'old_value'    => $oldQty * $price,
+            'new_value'    => $newQty * $price,
+            'note'         => 'إضافة ' . $quantity . ' شدة',
         ]);
         $this->logAudit('inventory_add', 'إضافة ' . $quantity . ' شدة للباقة #' . $row['package_id']);
 
         $this->redirect('/inventory');
     }
 
-    /** تعديل: replace the current quantity with a new value. */
+    /** تعديل — replace the current quantity with a new value; value updates automatically. */
     public function edit(Request $request): void
     {
         $this->requireAuth();
@@ -102,20 +102,20 @@ final class InventoryController extends Controller
         $inventory->setQuantity($id, $newQty);
         $inventory->logMovement([
             'package_id'   => (int)$row['package_id'],
-            'action'        => 'edit',
-            'old_quantity'  => $oldQty,
-            'new_quantity'  => $newQty,
-            'bundle_price'  => $price,
-            'old_value'     => $oldQty * $price,
-            'new_value'     => $newQty * $price,
-            'note'          => 'تعديل العدد من ' . $oldQty . ' إلى ' . $newQty,
+            'action'       => 'edit',
+            'old_quantity' => $oldQty,
+            'new_quantity' => $newQty,
+            'bundle_price' => $price,
+            'old_value'    => $oldQty * $price,
+            'new_value'    => $newQty * $price,
+            'note'         => 'تعديل العدد من ' . $oldQty . ' إلى ' . $newQty,
         ]);
         $this->logAudit('inventory_edit', 'تعديل مخزون الباقة #' . $row['package_id'] . ' من ' . $oldQty . ' إلى ' . $newQty);
 
         $this->redirect('/inventory');
     }
 
-    /** حذف: delete the inventory row after confirmation. */
+    /** حذف — delete the inventory row after confirmation. */
     public function delete(Request $request): void
     {
         $this->requireAuth();
@@ -137,13 +137,13 @@ final class InventoryController extends Controller
 
         $inventory->logMovement([
             'package_id'   => (int)$row['package_id'],
-            'action'        => 'delete',
-            'old_quantity'  => $oldQty,
-            'new_quantity'  => 0,
-            'bundle_price'  => $price,
-            'old_value'     => $oldQty * $price,
-            'new_value'     => 0,
-            'note'          => 'حذف سجل المخزون',
+            'action'       => 'delete',
+            'old_quantity' => $oldQty,
+            'new_quantity' => 0,
+            'bundle_price' => $price,
+            'old_value'    => $oldQty * $price,
+            'new_value'    => 0,
+            'note'         => 'حذف سجل المخزون',
         ]);
         $inventory->delete($id);
         $this->logAudit('inventory_delete', 'حذف سجل مخزون الباقة #' . $row['package_id']);

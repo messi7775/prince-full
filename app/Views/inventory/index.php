@@ -2,7 +2,7 @@
     <section class="dashboard-title">
         <div>
             <h2>المخزون</h2>
-            <p>إدارة مخزون الباقات — كل باقة لها سجل واحد</p>
+            <p>إدارة مخزون الباقات — كل باقة لها سجل واحد تلقائيًا</p>
         </div>
     </section>
 
@@ -63,7 +63,7 @@
                             <form method="post" action="/inventory/add" class="inline-inv-form">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
-                                <label>إضافة شدات: <input name="quantity" type="number" min="1" required placeholder="عدد الشدات"></label>
+                                <label>عدد الشدات المضافة: <input name="quantity" type="number" min="1" required placeholder="عدد الشدات"></label>
                                 <button class="btn sm primary" type="submit">تأكيد الإضافة</button>
                                 <button class="btn sm" type="button" onclick="closeInvForm('add-<?= (int)$row['id'] ?>')">إلغاء</button>
                             </form>
@@ -96,12 +96,13 @@
                     <tr>
                         <th>التاريخ والوقت</th>
                         <th>الباقة</th>
-                        <th>الإجراء</th>
-                        <th>الكمية السابقة</th>
-                        <th>الكمية الجديدة</th>
+                        <th>نوع الحركة</th>
+                        <th>العدد السابق</th>
+                        <th>العدد المضاف/الجديد</th>
+                        <th>العدد بعد الحركة</th>
                         <th>سعر الشدة</th>
                         <th>القيمة</th>
-                        <th>ملاحظة</th>
+                        <th>الملاحظة</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -111,12 +112,22 @@
                         <td><?= e($m['package_name']) ?></td>
                         <td>
                             <?php
-                                $labels = ['add' => 'إضافة', 'edit' => 'تعديل', 'delete' => 'حذف'];
+                                $labels  = ['add' => 'إضافة', 'edit' => 'تعديل', 'delete' => 'حذف'];
                                 $classes = ['add' => 'ok', 'edit' => '', 'delete' => 'zero'];
                             ?>
                             <span class="badge <?= $classes[$m['action']] ?? '' ?>"><?= $labels[$m['action']] ?? $m['action'] ?></span>
                         </td>
                         <td><?= int_num($m['old_quantity']) ?></td>
+                        <td>
+                            <?php
+                                $diff = (int)$m['new_quantity'] - (int)$m['old_quantity'];
+                                if ($m['action'] === 'edit') {
+                                    echo int_num($m['new_quantity']);
+                                } else {
+                                    echo ($diff >= 0 ? '+' : '') . int_num(abs($diff)) . ($diff >= 0 ? '' : ' (حذف)');
+                                }
+                            ?>
+                        </td>
                         <td><?= int_num($m['new_quantity']) ?></td>
                         <td><?= money($m['bundle_price']) ?></td>
                         <td><?= money($m['new_value']) ?></td>

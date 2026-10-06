@@ -57,8 +57,9 @@ final class PackageController extends Controller
         ];
 
         $packageId = (new Package())->create($data);
-        // Auto-create an inventory row for the new package (qty=0, price=0)
-        (new Inventory())->findOrCreateByPackage($packageId, 0);
+        // Auto-create a single inventory row for the new package:
+        //   عدد الشدات = 5 تلقائيًا، سعر الشدة = سعر الباقة، القيمة = 5 × سعر الشدة
+        (new Inventory())->findOrCreateByPackage($packageId, 5, $bundlePrice);
         $this->logAudit('package_create', 'إضافة باقة: ' . $name, $data);
 
         $this->redirect('/packages');
