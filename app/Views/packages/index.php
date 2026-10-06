@@ -6,6 +6,10 @@
         </div>
     </section>
 
+    <?php if (!empty($error)): ?>
+        <div class="alert error"><?= e($error) ?></div>
+    <?php endif; ?>
+
     <section class="dashboard-panel">
         <details class="form-collapse">
             <summary class="btn primary">+ إضافة باقة جديدة</summary>

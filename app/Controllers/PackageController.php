@@ -7,6 +7,7 @@ use Controller;
 use Request;
 use Models\Package;
 use Models\AuditLog;
+use Session;
 
 final class PackageController extends Controller
 {
@@ -21,7 +22,10 @@ final class PackageController extends Controller
             'pageTitle' => 'الباقات',
             'active'    => 'packages',
             'packages'  => $packages,
+            'error'     => Session::get('package_error'),
         ]);
+
+        Session::forget('package_error');
     }
 
     public function store(Request $request): void
@@ -35,6 +39,12 @@ final class PackageController extends Controller
         $threshold   = (int)$request->input('low_stock_threshold', 5);
 
         if ($name === '' || $bundlePrice < 0) {
+            Session::set('package_error', 'اسم الباقة وسعر الشدة مطلوبان');
+            $this->redirect('/packages');
+        }
+
+        if ((new Package())->findByName($name) !== null) {
+            Session::set('package_error', 'يوجد باقة بنفس الاسم بالفعل: ' . $name);
             $this->redirect('/packages');
         }
 
@@ -63,6 +73,13 @@ final class PackageController extends Controller
         $threshold   = (int)$request->input('low_stock_threshold', 5);
 
         if ($id <= 0 || $name === '') {
+            Session::set('package_error', 'اسم الباقة مطلوب');
+            $this->redirect('/packages');
+        }
+
+        $existing = (new Package())->findByName($name);
+        if ($existing !== null && (int)$existing['id'] !== $id) {
+            Session::set('package_error', 'يوجد باقة بنفس الاسم بالفعل: ' . $name);
             $this->redirect('/packages');
         }
 

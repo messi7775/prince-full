@@ -32,6 +32,11 @@ final class Package extends Model
         return $this->fetchOne('SELECT * FROM packages WHERE id = ?', [$id]);
     }
 
+    public function findByName(string $name): ?array
+    {
+        return $this->fetchOne('SELECT * FROM packages WHERE name = ? LIMIT 1', [$name]);
+    }
+
     public function create(array $data): int
     {
         return $this->insert('packages', $data);
