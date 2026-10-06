@@ -32,15 +32,17 @@ final class PackageController extends Controller
         $name        = (string)$request->input('name', '');
         $bundlePrice = (int)$request->input('bundle_price', 0);
         $status      = (string)$request->input('status', 'active');
+        $threshold   = (int)$request->input('low_stock_threshold', 5);
 
         if ($name === '' || $bundlePrice < 0) {
             $this->redirect('/packages');
         }
 
         $data = [
-            'name'         => $name,
-            'bundle_price' => $bundlePrice,
-            'status'       => $status,
+            'name'                => $name,
+            'bundle_price'        => $bundlePrice,
+            'status'              => $status,
+            'low_stock_threshold' => $threshold,
         ];
 
         (new Package())->create($data);
@@ -58,15 +60,17 @@ final class PackageController extends Controller
         $name        = (string)$request->input('name', '');
         $bundlePrice = (int)$request->input('bundle_price', 0);
         $status      = (string)$request->input('status', 'active');
+        $threshold   = (int)$request->input('low_stock_threshold', 5);
 
         if ($id <= 0 || $name === '') {
             $this->redirect('/packages');
         }
 
         $data = [
-            'name'         => $name,
-            'bundle_price' => $bundlePrice,
-            'status'       => $status,
+            'name'                => $name,
+            'bundle_price'        => $bundlePrice,
+            'status'              => $status,
+            'low_stock_threshold' => $threshold,
         ];
 
         (new Package())->update($id, $data);

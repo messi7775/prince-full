@@ -21,6 +21,23 @@
         <article class="kpi-card green"><div class="kpi-icon">▦</div><div class="kpi-content"><span>إجمالي الشدات المباعة</span><strong><?= int_num($kpis['total_bundles_sold']) ?></strong></div></article>
     </section>
 
+    <?php if (!empty($lowStock)): ?>
+    <section class="dashboard-panel alert-panel">
+        <div class="section-title"><h3>⚠ تنبيهات المخزون المنخفض</h3><span style="color:#e11d48">⚠</span></div>
+        <div class="low-stock-alerts">
+            <?php foreach ($lowStock as $row): ?>
+            <div class="low-stock-item">
+                <span class="low-stock-name"><?= e($row['name']) ?></span>
+                <span class="low-stock-count <?= (int)$row['bundles'] === 0 ? 'out' : 'low' ?>">
+                    <?= (int)$row['bundles'] === 0 ? 'نفذ المخزون' : 'باقي ' . int_num($row['bundles']) . ' شدة' ?>
+                </span>
+                <span class="low-stock-threshold">الحد: <?= int_num($row['low_stock_threshold']) ?> شدة</span>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </section>
+    <?php endif; ?>
+
     <section class="dashboard-panel">
         <div class="section-title"><h3>العمليات الأخيرة</h3><span>⌁</span></div>
         <?php if (empty($operations)): ?>
@@ -46,7 +63,7 @@
             <?php foreach ($inventory as $row): ?>
                 <div class="inventory-row">
                     <span><?= e($row['name']) ?> — شدة <?= money($row['bundle_price']) ?></span>
-                    <span class="stock-count <?= ((int)$row['bundles']) > 0 ? 'ok' : 'zero' ?>"><?= int_num($row['bundles']) ?> شدة</span>
+                    <span class="stock-count <?= ((int)$row['bundles']) <= (int)($row['low_stock_threshold'] ?? 0) ? 'zero' : 'ok' ?>"><?= int_num($row['bundles']) ?> شدة</span>
                     <em><?= money($row['value']) ?></em>
                 </div>
             <?php endforeach; ?>

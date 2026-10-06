@@ -20,12 +20,14 @@ final class InventoryController extends Controller
 
         $items    = $inventory->all();
         $packages = $package->active();
+        $lowStock = $inventory->lowStock();
 
         $this->view('inventory/index', [
             'pageTitle' => 'المخزون',
             'active'    => 'inventory',
             'items'     => $items,
             'packages'  => $packages,
+            'lowStock'  => $lowStock,
         ]);
     }
 

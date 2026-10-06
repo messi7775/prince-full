@@ -97,6 +97,16 @@ body{line-height:1.5}a{text-decoration:none;color:inherit}button{font:inherit}
 .alert.error{background:#fff1f4;color:#c92048}
 .alert.success{background:#effaf7;color:#128a6a}
 
+/* Low-stock alerts */
+.alert-panel{border-color:#ffd0d8;background:#fff8fa}
+.low-stock-alerts{display:grid;gap:8px}
+.low-stock-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:#fff0f3;border:1px solid #ffd0d8;border-radius:10px}
+.low-stock-name{font-weight:700;font-size:15px;color:#172033}
+.low-stock-count{font-size:14px;font-weight:700;padding:3px 10px;border-radius:8px}
+.low-stock-count.low{background:#fff3d6;color:#c98517}
+.low-stock-count.out{background:#ffe0e8;color:#e6466a}
+.low-stock-threshold{font-size:13px;color:#8a94a2}
+
 /* Login */
 .login-page{display:grid;place-items:center;min-height:100vh;background:linear-gradient(135deg,#0d1528,#16223b)}
 .login-card{width:90%;max-width:380px;background:var(--surface);border-radius:22px;padding:36px 30px;box-shadow:0 20px 60px rgba(0,0,0,.2)}

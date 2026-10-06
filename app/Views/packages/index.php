@@ -20,6 +20,7 @@
                             <option value="inactive">غير نشط</option>
                         </select>
                     </label>
+                    <label>حد التنبيه (عدد الشدات)<input name="low_stock_threshold" type="number" min="0" value="5" required></label>
                 </div>
                 <button class="btn primary" type="submit">حفظ</button>
             </form>
@@ -33,13 +34,14 @@
         <?php else: ?>
             <table class="data-table">
                 <thead>
-                    <tr><th>الاسم</th><th>سعر الشدة</th><th>الحالة</th><th>إجراءات</th></tr>
+                    <tr><th>الاسم</th><th>سعر الشدة</th><th>حد التنبيه</th><th>الحالة</th><th>إجراءات</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($packages as $pkg): ?>
                     <tr>
                         <td><?= e($pkg['name']) ?></td>
                         <td><?= money($pkg['bundle_price']) ?></td>
+                        <td><?= int_num($pkg['low_stock_threshold']) ?> شدة</td>
                         <td><span class="badge <?= $pkg['status'] === 'active' ? 'ok' : 'zero' ?>"><?= $pkg['status'] === 'active' ? 'نشط' : 'متوقف' ?></span></td>
                         <td class="actions-cell">
                             <form method="post" action="/packages/delete" class="inline-form" onsubmit="return confirm('حذف هذه الباقة؟')">

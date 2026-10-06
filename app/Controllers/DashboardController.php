@@ -17,6 +17,7 @@ final class DashboardController extends Controller
         $kpis   = $report->dashboardKpis();
         $operations = $report->recentOperations();
         $inventory  = $report->inventoryStatus();
+        $lowStock   = $report->lowStockAlerts();
 
         $this->view('dashboard/index', [
             'pageTitle'  => 'لوحة التحكم',
@@ -24,6 +25,7 @@ final class DashboardController extends Controller
             'kpis'       => $kpis,
             'operations' => $operations,
             'inventory'  => $inventory,
+            'lowStock'   => $lowStock,
         ]);
     }
 }

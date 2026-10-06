@@ -29,6 +29,23 @@
         </details>
     </section>
 
+    <?php if (!empty($lowStock)): ?>
+    <section class="dashboard-panel alert-panel">
+        <div class="section-title"><h3>⚠ تنبيهات المخزون المنخفض</h3><span style="color:#e11d48">⚠</span></div>
+        <div class="low-stock-alerts">
+            <?php foreach ($lowStock as $row): ?>
+            <div class="low-stock-item">
+                <span class="low-stock-name"><?= e($row['name']) ?></span>
+                <span class="low-stock-count <?= (int)$row['bundles'] === 0 ? 'out' : 'low' ?>">
+                    <?= (int)$row['bundles'] === 0 ? 'نفذ المخزون' : 'باقي ' . int_num($row['bundles']) . ' شدة' ?>
+                </span>
+                <span class="low-stock-threshold">الحد: <?= int_num($row['low_stock_threshold']) ?> شدة</span>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </section>
+    <?php endif; ?>
+
     <section class="dashboard-panel">
         <div class="section-title"><h3>دفعات المخزون</h3><span>♧</span></div>
         <?php if (empty($items)): ?>

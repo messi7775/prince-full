@@ -69,6 +69,11 @@ final class ReportService
         return $this->inventory->stockByPackage();
     }
 
+    public function lowStockAlerts(): array
+    {
+        return $this->inventory->lowStock();
+    }
+
     public function salesReport(): array
     {
         return $this->sales->all();

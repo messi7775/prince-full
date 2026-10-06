@@ -57,17 +57,32 @@ final class Inventory extends Model
         return $this->fetchInt("SELECT COALESCE(SUM(quantity), 0) FROM inventory WHERE status = 'active'");
     }
 
-    /** Stock grouped by package. */
+    /** Stock grouped by package (with low-stock threshold). */
     public function stockByPackage(): array
     {
         return $this->fetchAll(
-            "SELECT p.id, p.name, p.bundle_price,
+            "SELECT p.id, p.name, p.bundle_price, p.low_stock_threshold,
                     COALESCE(SUM(i.quantity), 0) AS bundles,
                     COALESCE(SUM(i.quantity * i.bundle_price), 0) AS value
                FROM packages p
           LEFT JOIN inventory i ON i.package_id = p.id AND i.status = 'active'
-           GROUP BY p.id, p.name, p.bundle_price
+           GROUP BY p.id, p.name, p.bundle_price, p.low_stock_threshold
            ORDER BY p.bundle_price DESC"
+        );
+    }
+
+    /** Packages whose active stock is at or below their low-stock threshold. */
+    public function lowStock(): array
+    {
+        return $this->fetchAll(
+            "SELECT p.id, p.name, p.bundle_price, p.low_stock_threshold,
+                    COALESCE(SUM(i.quantity), 0) AS bundles
+               FROM packages p
+          LEFT JOIN inventory i ON i.package_id = p.id AND i.status = 'active'
+              WHERE p.status = 'active'
+           GROUP BY p.id, p.name, p.bundle_price, p.low_stock_threshold
+             HAVING bundles <= p.low_stock_threshold
+           ORDER BY bundles ASC"
         );
     }
 }
