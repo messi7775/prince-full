@@ -28,15 +28,16 @@
         <?php else: ?>
             <table class="data-table">
                 <thead>
-                    <tr><th>الاسم</th><th>الهاتف</th><th>إجمالي الآجل</th><th>إجمالي المسدد</th><th>الرصيد المستحق</th><th>إجراءات</th></tr>
+                    <tr><th>الاسم</th><th>الهاتف</th><th>إجمالي الآجل</th><th>إجمالي التقسيط</th><th>إجمالي المسدد</th><th>الرصيد المستحق</th><th>إجراءات</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($distributors as $d): ?>
-                    <?php $balance = (int)$d['credit_total'] - (int)$d['paid_total']; ?>
+                    <?php $balance = (int)$d['credit_total'] + ((int)$d['installment_total'] - (int)$d['installment_paid']) - (int)$d['paid_total']; ?>
                     <tr>
                         <td><?= e($d['name']) ?></td>
                         <td><?= e($d['phone'] ?? '') ?></td>
                         <td><?= money($d['credit_total']) ?></td>
+                        <td><?= money($d['installment_total']) ?></td>
                         <td><?= money($d['paid_total']) ?></td>
                         <td><span class="badge <?= $balance > 0 ? 'zero' : 'ok' ?>"><?= money($balance) ?></span></td>
                         <td class="actions-cell">
