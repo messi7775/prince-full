@@ -28,16 +28,24 @@
         <?php else: ?>
             <table class="data-table">
                 <thead>
-                    <tr><th>الاسم</th><th>الهاتف</th><th>إجمالي الآجل</th><th>إجمالي المسدد</th><th>الرصيد المستحق</th><th>إجراءات</th></tr>
+                    <tr><th>الاسم</th><th>الهاتف</th><th>الآجل</th><th>المسدد</th><th>المقسط</th><th>الرصيد المستحق</th><th>إجراءات</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($distributors as $d): ?>
-                    <?php $balance = (int)$d['credit_total'] - (int)$d['paid_total']; ?>
+                    <?php
+                        $credit      = (int)$d['credit_total'];
+                        $installment = (int)$d['installment_total'];
+                        $installmentPaid = (int)$d['installment_paid'];
+                        $paid_total  = (int)$d['paid_total'];
+                        $settled     = $installmentPaid + $paid_total; // المسدد
+                        $balance     = $credit + $installment - $settled; // الرصيد المستحق
+                    ?>
                     <tr>
                         <td><?= e($d['name']) ?></td>
                         <td><?= e($d['phone'] ?? '') ?></td>
-                        <td><?= money($d['credit_total']) ?></td>
-                        <td><?= money($d['paid_total']) ?></td>
+                        <td><?= money($credit) ?></td>
+                        <td><?= money($settled) ?></td>
+                        <td><?= money($installment) ?></td>
                         <td><span class="badge <?= $balance > 0 ? 'zero' : 'ok' ?>"><?= money($balance) ?></span></td>
                         <td class="actions-cell">
                             <form method="post" action="/distributors/delete" class="inline-form" onsubmit="return confirm('حذف هذا الموزع؟')">

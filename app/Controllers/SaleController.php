@@ -56,6 +56,9 @@ final class SaleController extends Controller
         }
 
         $total = $bundlesCount * $bundlePrice;
+        if ($total <= 0) {
+            $this->redirect('/sales');
+        }
 
         // Normalize paid_amount based on payment type
         if ($paymentType === 'cash') {
@@ -65,18 +68,6 @@ final class SaleController extends Controller
         } else {
             // installment — clamp paid_amount to [0, total]
             $paidAmount = max(0, min($paidAmount, $total));
-        }
-
-        // Deduct from inventory
-        $inventory = new Inventory();
-        $remaining = $bundlesCount;
-        $batches = $inventory->activeBatches($packageId);
-        foreach ($batches as $batch) {
-            if ($remaining <= 0) break;
-            $deduct = min((int)$batch['quantity'], $remaining);
-            $newQty = (int)$batch['quantity'] - $deduct;
-            $inventory->deductBatch((int)$batch['id'], $newQty);
-            $remaining -= $deduct;
         }
 
         $data = [
@@ -90,19 +81,43 @@ final class SaleController extends Controller
             'note'           => $note ?: null,
         ];
 
-        $saleId = (new Sale())->create($data);
+        $db = \Database::connection();
 
-        // Record cash movement for the paid portion
-        if ($paidAmount > 0) {
-            (new CashMovement())->create([
-                'direction'      => CashMovement::IN,
-                'amount'         => $paidAmount,
-                'reason'         => $paymentType === 'cash'
-                    ? 'بيع كروت (نقدي)'
-                    : 'بيع كروت (تقسيط - دفعة أولى)',
-                'reference_type' => 'sale',
-                'reference_id'   => $saleId,
-            ]);
+        try {
+            $db->beginTransaction();
+
+            // Deduct from inventory
+            $inventory = new Inventory();
+            $remaining = $bundlesCount;
+            $batches = $inventory->activeBatches($packageId);
+            foreach ($batches as $batch) {
+                if ($remaining <= 0) break;
+                $deduct = min((int)$batch['quantity'], $remaining);
+                $newQty = (int)$batch['quantity'] - $deduct;
+                $inventory->deductBatch((int)$batch['id'], $newQty);
+                $remaining -= $deduct;
+            }
+
+            // Insert the sale
+            $saleId = (new Sale())->create($data);
+
+            // Record cash movement for the paid portion (initial payment only, counted once)
+            if ($paidAmount > 0) {
+                (new CashMovement())->create([
+                    'direction'      => CashMovement::IN,
+                    'amount'         => $paidAmount,
+                    'reason'         => $paymentType === 'cash'
+                        ? 'بيع كروت (نقدي)'
+                        : 'بيع كروت (تقسيط - دفعة أولى)',
+                    'reference_type' => 'sale',
+                    'reference_id'   => $saleId,
+                ]);
+            }
+
+            $db->commit();
+        } catch (\Throwable $e) {
+            $db->rollBack();
+            throw $e;
         }
 
         $this->logAudit('sale_create', "بيع $bundlesCount شدة × $bundlePrice = $total", $data);
@@ -117,8 +132,18 @@ final class SaleController extends Controller
 
         $id = (int)$request->input('id', 0);
         if ($id > 0) {
-            (new Sale())->delete($id);
-            (new CashMovement())->deleteByReference('sale', $id);
+            $db = \Database::connection();
+
+            try {
+                $db->beginTransaction();
+                (new Sale())->delete($id);
+                (new CashMovement())->deleteByReference('sale', $id);
+                $db->commit();
+            } catch (\Throwable $e) {
+                $db->rollBack();
+                throw $e;
+            }
+
             $this->logAudit('sale_delete', 'حذف عملية بيع #' . $id);
         }
 

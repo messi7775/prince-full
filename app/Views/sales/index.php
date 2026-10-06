@@ -24,7 +24,15 @@
                         <select name="distributor_id" id="sale-distributor" required>
                             <option value="">— اختر موزع —</option>
                             <?php foreach ($distributors as $d): ?>
-                                <option value="<?= (int)$d['id'] ?>"><?= e($d['name']) ?> — رصيد: <?= money((int)$d['credit_total'] - (int)$d['paid_total']) ?></option>
+                                <?php
+                                    $credit      = (int)$d['credit_total'];
+                                    $installment = (int)$d['installment_total'];
+                                    $installmentPaid = (int)$d['installment_paid'];
+                                    $paid_total  = (int)$d['paid_total'];
+                                    $settled     = $installmentPaid + $paid_total;
+                                    $bal         = $credit + $installment - $settled;
+                                ?>
+                                <option value="<?= (int)$d['id'] ?>"><?= e($d['name']) ?> — رصيد: <?= money($bal) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </label>
@@ -54,7 +62,7 @@
         <?php else: ?>
             <table class="data-table">
                 <thead>
-                    <tr><th>التاريخ</th><th>الموزع</th><th>الباقة</th><th>عدد الشدات</th><th>سعر الشدة</th><th>الإجمالي</th><th>المتبقي</th><th>نوع الدفع</th><th>إجراءات</th></tr>
+                    <tr><th>التاريخ</th><th>الموزع</th><th>الباقة</th><th>الشدات</th><th>سعر(ش)</th><th>الإجمالي</th><th>المدفوع</th><th>المتبقي</th><th>نوع الدفع</th><th>إجراءات</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($sales as $s): ?>
@@ -82,6 +90,7 @@
                         <td><?= int_num($s['bundles_count']) ?></td>
                         <td><?= money($s['bundle_price']) ?></td>
                         <td><?= money($s['total']) ?></td>
+                        <td><?= money($s['paid_amount']) ?></td>
                         <td><?= money($remaining) ?></td>
                         <td><span class="badge <?= $typeBadge ?>"><?= $typeLabel ?></span></td>
                         <td class="actions-cell">

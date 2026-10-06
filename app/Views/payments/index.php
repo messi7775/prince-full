@@ -16,7 +16,14 @@
                         <select name="distributor_id" required>
                             <option value="">— اختر —</option>
                             <?php foreach ($distributors as $d): ?>
-                                <?php $bal = (int)$d['credit_total'] - (int)$d['paid_total']; ?>
+                                <?php
+                                    $credit      = (int)$d['credit_total'];
+                                    $installment = (int)$d['installment_total'];
+                                    $installmentPaid = (int)$d['installment_paid'];
+                                    $paid_total  = (int)$d['paid_total'];
+                                    $settled     = $installmentPaid + $paid_total;
+                                    $bal         = $credit + $installment - $settled;
+                                ?>
                                 <option value="<?= (int)$d['id'] ?>"><?= e($d['name']) ?> — مستحق: <?= money($bal) ?></option>
                             <?php endforeach; ?>
                         </select>

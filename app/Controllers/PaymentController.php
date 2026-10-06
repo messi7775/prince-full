@@ -47,16 +47,27 @@ final class PaymentController extends Controller
             'note'           => $note ?: null,
         ];
 
-        $payId = (new Payment())->create($data);
+        $db = \Database::connection();
 
-        // Cash in from collection
-        (new CashMovement())->create([
-            'direction'      => CashMovement::IN,
-            'amount'         => $amount,
-            'reason'         => 'تحصيل من موزع',
-            'reference_type' => 'payment',
-            'reference_id'   => $payId,
-        ]);
+        try {
+            $db->beginTransaction();
+
+            $payId = (new Payment())->create($data);
+
+            // Cash in from collection (later payment — separate from initial installment payment)
+            (new CashMovement())->create([
+                'direction'      => CashMovement::IN,
+                'amount'         => $amount,
+                'reason'         => 'تحصيل من موزع',
+                'reference_type' => 'payment',
+                'reference_id'   => $payId,
+            ]);
+
+            $db->commit();
+        } catch (\Throwable $e) {
+            $db->rollBack();
+            throw $e;
+        }
 
         $this->logAudit('payment_create', 'تحصيل ' . $amount, $data);
 
@@ -70,11 +81,21 @@ final class PaymentController extends Controller
 
         $id = (int)$request->input('id', 0);
         if ($id > 0) {
-            (new Payment())->delete($id);
-            (new CashMovement())->execute(
-                "DELETE FROM cash_movements WHERE reference_type = 'payment' AND reference_id = ?",
-                [$id]
-            );
+            $db = \Database::connection();
+
+            try {
+                $db->beginTransaction();
+                (new Payment())->delete($id);
+                (new CashMovement())->execute(
+                    "DELETE FROM cash_movements WHERE reference_type = 'payment' AND reference_id = ?",
+                    [$id]
+                );
+                $db->commit();
+            } catch (\Throwable $e) {
+                $db->rollBack();
+                throw $e;
+            }
+
             $this->logAudit('payment_delete', 'حذف تحصيل #' . $id);
         }
 
